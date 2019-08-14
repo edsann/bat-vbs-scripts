@@ -1,2 +1,2 @@
 # bat-vbs-scripts
-Some useful batch scripts
+Some useful scripts
