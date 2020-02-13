@@ -8,6 +8,19 @@
 # * YOU MAY HAVE TO RUN THIS COMMAND PRIOR TO RUNNING THIS SCRIPT!
 Set-ExecutionPolicy Bypass -Scope Process
 
+
+# To begin with: Creating and updating a log file with timestamps
+$Logpath = "C:\_TEMP"
+$Logfile = "$Logpath\IIS_install.log"
+$datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
+Function LogWrite
+{
+   Param ([string]$logstring)
+   Add-content $Logfile -value "$datetime $logstring "
+}
+LogWrite "Start logging"
+
+
 # To list all Windows Features: 
 # dism /online /Get-Features
 # or:
@@ -24,7 +37,7 @@ Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationDevelopment
 # Watch out for these two:
 Enable-WindowsOptionalFeature -online -FeatureName NetFx4Extended-ASPNET45
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-NetFxExtensibility45
-
+#
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-HealthAndDiagnostics
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-HttpLogging
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-LoggingLibraries
@@ -53,10 +66,10 @@ Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45
 #Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASP
 
 # Import WebAdministration module
-# For IIS 7.0 
-# Import-Module WebAdministration
-# For IIS 10.0 
-Import-Module IISAdministration
+# It depends on the OS version, maybe insert a check with:
+(Get-WMIObject win32_operatingsystem).name
+Import-Module WebAdministration -ErrorAction SilentlyContinue # For IIS 7.5 (Windows Server 2008 R2 on)
+Import-Module IISAdministration # For IIS 10.0 (Windows Server 2016 and 2016-nano on)
 
 # To create an Application Pool
 New-WebAppPool -name "NewWebSiteAppPool"  -force
@@ -75,4 +88,27 @@ $appPool | Set-Item
 
 
 
+# Check if IIS is installed, and which version
+# Still to be tested!
+# -----------------------------
+try {
+  # Is IIS installed?
+	$iisFeature = Get-WindowsFeature Web-WebServer -ErrorAction Stop
+	if ($iisFeature -eq $null -or $iisFeature.Installed -eq $false) {
+    # IIS not installed, print error
+		Write-Error "It looks like IIS is not installed on this server and the deployment is likely to fail."
+		Write-Error "Tip: You can use PowerShell to ensure IIS is installed: 'Install-WindowsFeature Web-WebServer'"
+		Write-Error "     You are likely to want more IIS features than just the web server. Run 'Get-WindowsFeature *web*' to see all of the features you can install."
+		exit 1
+	}
+	else {
+    # IIS installed, get version from Registry Key
+		$iisVersion = Get-ItemProperty HKLM:\SOFTWARE\Microsoft\InetStp\  | Select VersionString
+		Write-Host "Detected IIS $($iisVersion.VersionString)"
+	}
+} catch {
+  # IIS not installable
+	Write-Host "Call to `Get-WindowsFeature Web-WebServer` failed."
+	Write-Host "Unable to determine if IIS is installed on this server but will optimistically continue."
+}
 
