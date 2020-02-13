@@ -52,8 +52,11 @@ Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45
 # If you need classic ASP (not recommended)
 #Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASP
 
-# WebAdministration module
-Import-Module WebAdministration
+# Import WebAdministration module
+# For IIS 7.0 
+# Import-Module WebAdministration
+# For IIS 10.0 
+Import-Module IISAdministration
 
 # To create an Application Pool
 New-WebAppPool -name "NewWebSiteAppPool"  -force
@@ -69,4 +72,7 @@ $appPool.enable32BitAppOnWin64 = 1
 $appPool.processModel.idleTimeout = "08:00:00"
 # Apply previous changes
 $appPool | Set-Item
+
+
+
 
