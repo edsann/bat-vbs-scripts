@@ -28,7 +28,7 @@ LogWrite "Start logging"
 # 	Get-WindowsOptionalFeature -Online 
 # LIST All IIS FEATURES: 
 # 	Get-WindowsOptionalFeature -Online | where FeatureName -like 'IIS-*'
-
+LogWrite "Starting installation of IIS Web Server"
 # .NET Framework 3.5 and 4.7
 Enable-WindowsOptionalFeature -Online -FeatureName NetFx3
 Enable-WindowsOptionalFeature -online -FeatureName NetFx4-AdvSrvs
@@ -54,6 +54,9 @@ Enable-WindowsOptionalFeature -Online -FeatureName IIS-WindowsAuthentication
 Enable-WindowsOptionalFeature -Online -FeatureName TelnetClient
 # If you need classic ASP (not recommended)
 #Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASP
+$IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
+# ---- Insert check here
+LogWrite "IIS $IISVersion successfully installed"
 
 # ---------------------------------------------------- 
 # Insert mpassw setup here
@@ -65,8 +68,8 @@ Enable-WindowsOptionalFeature -Online -FeatureName TelnetClient
 $ApplicationPoolName = "MICRONTEL_Accessi"
 $WebSiteName = "Default Web Site"
 $ApplicationName = "/mpassw"
-# Get IIS Version as string and import admin modules
-$IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
+LogWrite "Starting configuration of $WebSiteName$ApplicationName in application pool $ApplicationPoolName"
+# Import IIS admin modules
 $IISShiftVersion = '10'
 Import-Module WebAdministration -ErrorAction SilentlyContinue # For IIS 7.5 (Windows Server 2008 R2 on)
 Import-Module IISAdministration # For IIS 10.0 (Windows Server 2016 and 2016-nano on)
@@ -84,8 +87,8 @@ if ($IISVersion.Substring(0,2) >= $IISShiftVersion) {
 	$pool.ProcessModel.IdentityType = "ApplicationPoolIdentity"
 	$pool.ProcessModel.idleTimeout = "08:00:00"
 	$manager.CommitChanges()
-	LogWrite "Application Pool '$ApplicationPoolName' successfully created"
-	} else {LogWrite "Application Pool '$ApplicationPoolName' already exists, please choose a different name"}
+	LogWrite "Application pool $ApplicationPoolName successfully created"
+	} else {LogWrite "Application pool $ApplicationPoolName already exists, please choose a different name"}
 } 
 # On WebAdministration (IIS 7.5)
 else {
@@ -96,8 +99,8 @@ else {
 	$appPool.enable32BitAppOnWin64 = 1
 	$appPool.processModel.idleTimeout = "08:00:00"
 	$appPool | Set-Item
-	LogWrite "Application Pool '$ApplicationPoolName' successfully created"
-	} else {LogWrite "Application Pool '$ApplicationPoolName' already exists, please choose a different name"}
+	LogWrite "Application Pool $ApplicationPoolName successfully created"
+	} else {LogWrite "Application Pool $ApplicationPoolName already exists, please choose a different name"}
 }
 
 # Assign the web application mpassw to the application pool
@@ -106,12 +109,12 @@ if ($IISVersion.Substring(0,2) >= $IISShiftVersion) {
 	$website = $manager.Sites["$WebSiteName"]
 	$website.Applications["$ApplicationName"].ApplicationPoolName = "$ApplicationPoolName"
 	$manager.CommitChanges()
-	LogWrite "Application '$WebSiteName$ApplicationName' successfully assigned to Application pool '$ApplicationPoolName'"
+	LogWrite "Application $WebSiteName$ApplicationName successfully assigned to Application pool $ApplicationPoolName"
 }
 # Using WebAdministration (IIS 7.5)
 else {
 	Set-ItemProperty -Path "IIS:\Sites\$WebSiteName\$ApplicationName" -name "applicationPool" -value "$ApplicationPoolName"
-	LogWrite "Application '$WebSiteName$ApplicationName' successfully assigned to Application pool '$ApplicationPoolName'"
+	LogWrite "Application $WebSiteName$ApplicationName successfully assigned to Application pool $ApplicationPoolName"
 }
 
 # Insert tests: check if all the features are properly installed, and check the application's properties in IIS
