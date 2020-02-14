@@ -2,8 +2,8 @@
 # This script installs IIS and the features required to run our web application
 #
 # Tested on PowerShell 5.1
+# Run as Administrator!
 
-# * Make sure you run this script from a Powershel Admin Prompt!
 # * Make sure Powershell Execution Policy is bypassed to run these scripts:
 # * YOU MAY HAVE TO RUN THIS COMMAND PRIOR TO RUNNING THIS SCRIPT!
 Set-ExecutionPolicy Bypass -Scope Process
@@ -52,7 +52,6 @@ Enable-WindowsOptionalFeature -Online -FeatureName IIS-BasicAuthentication
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-WindowsAuthentication
 # Misc.
 Enable-WindowsOptionalFeature -Online -FeatureName TelnetClient
-
 # If you need classic ASP (not recommended)
 #Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASP
 
@@ -66,15 +65,16 @@ Enable-WindowsOptionalFeature -Online -FeatureName TelnetClient
 $ApplicationPoolName = "MICRONTEL_Accessi"
 $WebSiteName = "Default Web Site"
 $ApplicationName = "/mpassw"
-# Get IIS Version and import admin modules
+# Get IIS Version as string and import admin modules
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
+$IISShiftVersion = '10'
 Import-Module WebAdministration -ErrorAction SilentlyContinue # For IIS 7.5 (Windows Server 2008 R2 on)
 Import-Module IISAdministration # For IIS 10.0 (Windows Server 2016 and 2016-nano on)
 $manager = Get-IISServerManager
 
 # Create application pool, integrated pipeline, Runtime v4.0, Enable32bitApps, idleTimeout 8hrs
 # Using IISAdministration (IIS 10.0)
-if ($IISVersion.Substring(0,2) >= '10') {
+if ($IISVersion.Substring(0,2) >= $IISShiftVersion) {
 	if ($manager.ApplicationPools["$ApplicationPoolName"] -eq $null) {
 	$pool = $manager.ApplicationPools.Add("$ApplicationPoolName")
 	$pool.ManagedPipelineMode = "Integrated"
@@ -102,7 +102,7 @@ else {
 
 # Assign the web application mpassw to the application pool
 # Using IISAdministration (IIS 10.0)
-if ($IISVersion.Substring(0,2) >= '10') {
+if ($IISVersion.Substring(0,2) >= $IISShiftVersion) {
 	$website = $manager.Sites["$WebSiteName"]
 	$website.Applications["$ApplicationName"].ApplicationPoolName = "$ApplicationPoolName"
 	$manager.CommitChanges()
