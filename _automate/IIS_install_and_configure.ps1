@@ -115,5 +115,6 @@ else {
 }
 
 # Insert tests: check if all the features are properly installed, and check the application's properties in IIS
+# 	Performance testing on the script?
 # Next steps: enabling application-level logging
 # Next steps: add authentication modes as parameters
