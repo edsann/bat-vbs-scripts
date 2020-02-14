@@ -114,5 +114,6 @@ else {
 	LogWrite "Application '$WebSiteName$ApplicationName' successfully assigned to Application pool '$ApplicationPoolName'"
 }
 
+# Insert tests: check if all the features are properly installed, and check the application's properties in IIS
 # Next steps: enabling application-level logging
 # Next steps: add authentication modes as parameters
