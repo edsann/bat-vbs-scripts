@@ -29,38 +29,26 @@ LogWrite "Start logging"
 # LIST All IIS FEATURES: 
 # 	Get-WindowsOptionalFeature -Online | where FeatureName -like 'IIS-*'
 
+# Web Server Role and Web Server Role Service (with default features, included management tools)
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServer
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-CommonHttpFeatures
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-HttpErrors
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-HttpRedirect
+# Web Server features > ApplicationDevelopment
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationDevelopment
-# Watch out for these two:
-Enable-WindowsOptionalFeature -online -FeatureName NetFx4Extended-ASPNET45
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-NetFxExtensibility45
-#
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-HealthAndDiagnostics
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-HttpLogging
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-LoggingLibraries
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-RequestMonitor
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-HttpTracing
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-Security
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-RequestFiltering
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-Performance
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerManagementTools
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-IIS6ManagementCompatibility
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-Metabase
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ManagementConsole
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-BasicAuthentication
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-WindowsAuthentication
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-StaticContent
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-DefaultDocument
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebSockets
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationInit
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET35
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET47
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-NetFxExtensibility47
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ISAPIExtensions
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ISAPIFilter
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-HttpCompressionStatic
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationInit
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebSockets
+# Web Server features > II6 MAnagement Compatibility
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-IIS6ManagementCompatibility
+# [Optional] Web Server features > Authentications
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-BasicAuthentication
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-WindowsAuthentication
+# NetFx4 Extensibility
+Enable-WindowsOptionalFeature -online -FeatureName NetFx4Extended-ASPNET35
+Enable-WindowsOptionalFeature -online -FeatureName NetFx4Extended-ASPNET47
 # If you need classic ASP (not recommended)
 #Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASP
 
@@ -82,7 +70,7 @@ $manager = Get-IISServerManager
 
 # Create application pool, integrated pipeline, Runtime v4.0, Enable32bitApps, idleTimeout 8hrs
 # Using IISAdministration (IIS 10.0)
-if ($IISVersion.Substring(0,2) = '10') {
+if ($IISVersion.Substring(0,2) >= '10') {
 	if ($manager.ApplicationPools["$ApplicationPoolName"] -eq $null) {
 	$pool = $manager.ApplicationPools.Add("$ApplicationPoolName")
 	$pool.ManagedPipelineMode = "Integrated"
@@ -110,7 +98,7 @@ else {
 
 # Assign the web application mpassw to the application pool
 # Using IISAdministration (IIS 10.0)
-if ($IISVersion.Substring(0,2) = '10') {
+if ($IISVersion.Substring(0,2) >= '10') {
 	$website = $manager.Sites["$WebSiteName"]
 	$website.Applications["$ApplicationName"].ApplicationPoolName = "$ApplicationPoolName"
 	$manager.CommitChanges()
