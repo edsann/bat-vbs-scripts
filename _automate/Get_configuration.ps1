@@ -15,3 +15,9 @@ $userid = [regex]::Match($connectionstring, 'User ID=([^;]+)').Groups[1].Value
 $password = [regex]::Match($connectionstring, 'Password=([^;]+)').Groups[1].Value
 
 #write-output $connectionstring
+
+#Connect to SQL Server
+#Set General parameters (T05COMFLAGS)
+#Create Internal Company utility
+#Create fictitious reference employee
+#Associate ref.empl. with admin user
