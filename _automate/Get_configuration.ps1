@@ -14,6 +14,11 @@ $initialcatalog = [regex]::Match($connectionstring, 'Initial Catalog=([^;]+)').G
 $userid = [regex]::Match($connectionstring, 'User ID=([^;]+)').Groups[1].Value
 $password = [regex]::Match($connectionstring, 'Password=([^;]+)').Groups[1].Value
 
+# Import SQL PowerShell module (it changes location to path SQLSERVER:\)
+Get-Command -Module SQLPS
+
+# Extract version
+Invoke-Sqlcmd -ServerInstance localhost\SQLEXPRESS -Database MRT_V -Query "SELECT @@VERSION"
 #write-output $connectionstring
 
 #Connect to SQL Server
