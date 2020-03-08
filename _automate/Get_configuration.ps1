@@ -6,7 +6,7 @@ $dbengine = $xml.SelectSingleNode('//add[@key="dbEngine"]').Value
 $mydbengine = "$("//add[@key='")$($dbengine)$("Str']")"
 
 # Read value from SqlStr and print it on file
-$connectionstring = $xml.SelectSingleNode($mydbengine).Value | Out-File "C:\MPW\temp.txt" -append
+$connectionstring = $xml.SelectSingleNode($mydbengine).Value #| Out-File "C:\MPW\temp.txt" -append
 
 # Get Connection String parameters
 $datasource = [regex]::Match($connectionstring, 'Data Source=([^;]+)').Groups[1].Value
@@ -18,7 +18,11 @@ $password = [regex]::Match($connectionstring, 'Password=([^;]+)').Groups[1].Valu
 Get-Command -Module SQLPS
 
 # Extract version
-Invoke-Sqlcmd -ServerInstance localhost\SQLEXPRESS -Database MRT_V -Query "SELECT @@VERSION"
+Invoke-Sqlcmd -ServerInstance $datasource -Database $initialcatalog -Query "SELECT @@VERSION"
+
+# Extract some results
+Invoke-Sqlcmd -ServerInstance $datasource -Database $initialcatalog -Query "SELECT * FROM T26COMDIPENDENTI" | ft
+
 #write-output $connectionstring
 
 #Connect to SQL Server
