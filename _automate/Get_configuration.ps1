@@ -21,7 +21,10 @@ Get-Command -Module SQLPS
 Invoke-Sqlcmd -ServerInstance $datasource -Database $initialcatalog -Query "SELECT @@VERSION"
 
 # Extract some results
-Invoke-Sqlcmd -ServerInstance $datasource -Database $initialcatalog -Query "SELECT * FROM T26COMDIPENDENTI" | ft
+# | ft (format table)
+# | Out-GridView (open in GridView)
+Invoke-Sqlcmd -ServerInstance $datasource -Database $initialcatalog -Query "SELECT * FROM T26COMDIPENDENTI" 
+
 
 #write-output $connectionstring
 
