@@ -1,7 +1,9 @@
 # MRT 7.50
 
-#Translated XML config
-$xml = [xml] (Get-Content "C:\MPW\MicronConfig\config.exe.config")
+# Translated XML config (for the path to be defined, it requires this script to be in \MPW)
+$WhereAmI = Split-Path $myInvocation.MyCommand.Path # Location of the current script (MPW)
+$MyPath = ls $WhereAmI MicronConfig -Recurse -Directory # Looks for MicronConfig directory
+$xml = [xml] (Get-Content "$($MyPath)$("\config.exe.config")") # Converts .config to .xml
 
 # Read value from dbengine
 $dbengine = $xml.SelectSingleNode('//add[@key="dbEngine"]').Value
