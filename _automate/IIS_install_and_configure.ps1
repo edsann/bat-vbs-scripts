@@ -22,12 +22,8 @@ LogWrite "Start logging"
 # ---------------------------------------------------- 
 # Install IIS
 #
-# To list all Windows Features: 
-# 	dism /online /Get-Features
-# or:
-# 	Get-WindowsOptionalFeature -Online 
 # LIST All IIS FEATURES: 
-# 	Get-WindowsOptionalFeature -Online | where FeatureName -like 'IIS-*'
+# Get-WindowsOptionalFeature -Online | where FeatureName -like 'IIS-*'
 LogWrite "Starting installation of IIS Web Server"
 # .NET Framework 3.5 and 4.7
 Enable-WindowsOptionalFeature -Online -FeatureName NetFx3
@@ -39,8 +35,8 @@ Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServer
 # Web Server features > ApplicationDevelopment
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationDevelopment
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-NetFxExtensibility47
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45 # To be fixed
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-NetFxExtensibility47 # To be fixed
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ISAPIExtensions
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ISAPIFilter
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationInit
