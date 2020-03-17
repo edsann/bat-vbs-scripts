@@ -21,37 +21,48 @@ LogWrite "Start logging"
 
 # ---------------------------------------------------- 
 # Install IIS
-#
-# LIST All IIS FEATURES: 
-# Get-WindowsOptionalFeature -Online | where FeatureName -like 'IIS-*'
+# Use: Enable-WindowsOptionalFeature for Windows Client
+# Use: Set-WindowsFeature for Windows Server
 LogWrite "Starting installation of IIS Web Server"
-# .NET Framework 3.5 and 4.7
-Enable-WindowsOptionalFeature -Online -FeatureName NetFx3
-Enable-WindowsOptionalFeature -online -FeatureName NetFx4-AdvSrvs
-Enable-WindowsOptionalFeature -online -FeatureName NetFx4Extended-ASPNET45
-# Web Server Role and Web Server Role Service (with default features, included management tools)
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServer
-# Web Server features > ApplicationDevelopment
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationDevelopment
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45 # To be fixed
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-NetFxExtensibility47 # To be fixed
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ISAPIExtensions
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ISAPIFilter
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationInit
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebSockets
-# Web Server features > II6 MAnagement Compatibility
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-IIS6ManagementCompatibility
-# [Optional] Web Server features > Authentications
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-BasicAuthentication
-Enable-WindowsOptionalFeature -Online -FeatureName IIS-WindowsAuthentication
-# Misc.
-Enable-WindowsOptionalFeature -Online -FeatureName TelnetClient
-# If you need classic ASP (not recommended)
-#Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASP
-$IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
+# Check OS type (1=Workstation, 2=Domain Controller, 3=Server)
+$osInfo = Get-CimInstance -ClassName Win32_OperatingSystem
+$OSType = $osInfo.ProductType
+
+# Workstation
+if ($OSType = "1"){
+    	# LIST All IIS FEATURES: 
+	# Get-WindowsOptionalFeature -Online | where FeatureName -like 'IIS-*'
+
+	# .NET Framework 3.5 and 4.7
+	Enable-WindowsOptionalFeature -Online -FeatureName NetFx3
+	Enable-WindowsOptionalFeature -online -FeatureName NetFx4-AdvSrvs
+	Enable-WindowsOptionalFeature -online -FeatureName NetFx4Extended-ASPNET45
+	# Web Server Role and Web Server Role Service (with default features, included management tools)
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServer
+	# Web Server features > ApplicationDevelopment
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationDevelopment
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45 # To be fixed
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-NetFxExtensibility47 # To be fixed
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-ISAPIExtensions
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-ISAPIFilter
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-ApplicationInit
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebSockets
+	# Web Server features > II6 MAnagement Compatibility
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-IIS6ManagementCompatibility
+	# [Optional] Web Server features > Authentications
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-BasicAuthentication
+	Enable-WindowsOptionalFeature -Online -FeatureName IIS-WindowsAuthentication
+	# Misc.
+	Enable-WindowsOptionalFeature -Online -FeatureName TelnetClient
+} 
+#Server
+else if ($OSType = "3"){
+	# Install-WindowsFeature
+}
 # ---- Insert check here
+$IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
 LogWrite "IIS $IISVersion successfully installed"
 
 # ---------------------------------------------------- 
