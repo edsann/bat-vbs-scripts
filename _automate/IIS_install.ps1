@@ -1,6 +1,9 @@
 <# 
 .Synopsis
     Automate IIS installation on Windows client or server
+.Next
+    Implement IIS-features(OStype), returns the features list
+        Even better using a matrix key-value, where value depends on the OStype (es. "Telnet Client", OSType=Server "Telnet-Client", OSType=Client "TelnetClient")
 #>
 
 # Creating and updating a log file with timestamps
