@@ -1,7 +1,6 @@
-cls
 cd C:\MPW
 # Create package msi in current dir
-& "./mrt7526.exe" /s /x /b"." /v"qn"
+./mrt7526.exe /s /x /b"$PWD" /v"/qn"
 # Silently install msi
 & "msiexec.exe" /qn /i 'Micronpass Application Suite.msi'
 
