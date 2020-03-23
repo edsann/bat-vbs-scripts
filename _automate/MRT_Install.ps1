@@ -13,3 +13,6 @@ $Process = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
 if ($Process.ExitCode -eq "0") {"Successfully installed"}
 if (Test-Path C:\MPW) {"MPW folder exists"}
 if (get-service -name btService) {"btService exists"}
+
+# Run MicronStart
+./Micronstart/mStart.exe
