@@ -59,7 +59,7 @@ else {
 
 # Assign the web application mpassw to the application pool
 # Using IISAdministration (IIS 10.0)
-if ($IISVersion.Substring(0,2) - $IISShiftVersion) {
+if ($IISVersion.Substring(0,2) -ge $IISShiftVersion) {
 	$website = $manager.Sites["$WebSiteName"]
 	$website.Applications["$ApplicationName"].ApplicationPoolName = "$ApplicationPoolName"
 	$manager.CommitChanges()
