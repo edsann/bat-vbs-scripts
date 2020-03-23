@@ -7,3 +7,4 @@ cd C:\MPW
 # Check if everything has been correctly installed
 if (Test-Path C:\MPW) {"MPW folder exists"}
 if (get-service -name btService) {"btService exists"}
+# work-in-progress
