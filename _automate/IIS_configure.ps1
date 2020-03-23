@@ -4,7 +4,7 @@
 #>
 
 # Creating and updating a log file with timestamps
-$Logpath = "C:\"
+$Logpath = "C:\MPW"
 $Logfile = "$Logpath\IIS_configure.log"
 $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
 Function LogWrite
