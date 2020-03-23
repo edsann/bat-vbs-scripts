@@ -1,9 +1,6 @@
-<# 
+﻿<# 
 .Synopsis
     Automate IIS installation on Windows client or server
-.Next
-    Implement IIS-features(OStype), returns the features list
-        Even better using a matrix key-value, where value depends on the OStype (es. "Telnet Client", OSType=Server "Telnet-Client", OSType=Client "TelnetClient")
 #>
 
 # Creating and updating a log file with timestamps
@@ -21,7 +18,7 @@ LogWrite "Starting installation of IIS Web Server"
 LogWrite "Checking OS infos..."
 # Check OS type
 $OSDetails = Get-ComputerInfo
-$OSName = $OSDetails.windowsProductName
+$OSName = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 $OSType = $OSDetails.WindowsInstallationType
 LogWrite "This is $OSName, so we're on a $OSType machine!"
 
@@ -111,4 +108,3 @@ LogWrite "IIS $IISVersion successfully installed"
 # 	Performance testing on the script?
 # Next steps: enabling application-level logging
 # Next steps: add authentication modes as parameters
-

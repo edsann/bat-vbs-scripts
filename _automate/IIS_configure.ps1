@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
     Automate IIS application pool configuration
 #>
