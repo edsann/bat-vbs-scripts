@@ -1,4 +1,4 @@
-# MRT 7.50
+# Initial configuration
 
 # Translated XML config 
 $WhereAmI = "C:\MPW"
