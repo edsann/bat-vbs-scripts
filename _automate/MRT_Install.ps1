@@ -4,3 +4,5 @@
 & "msiexec.exe" /qn /i 'Micronpass Application Suite.msi'
 
 # Check if everything has been correctly installed
+if (Test-Path C:\MPW) {"MPW folder exists"}
+if (get-service -name btService) {"btService exists"}
