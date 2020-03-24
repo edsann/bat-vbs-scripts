@@ -2,8 +2,9 @@
 .SYNOPSIS
     Installing MRT App Suite
 .NOTES
-    To be tested on Windows Server!
-    CRNET still missing, install manually
+    Tested on Windows 10 Pro Build 1876
+    ..To be tested on Windows Server!
+    ..CRNET still missing, install manually
 #>
 
 cd C:\MPW_INSTALL
