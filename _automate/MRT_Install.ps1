@@ -2,7 +2,8 @@
 .SYNOPSIS
     Installing MRT App Suite
 .NOTES
-    Tested on Windows 10 Pro Build 1876
+    Tested on Windows 10 Pro Build 1809
+
     ..To be tested on Windows Server!
     ..CRNET still missing, install manually
 #>
