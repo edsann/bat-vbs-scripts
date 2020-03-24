@@ -50,21 +50,22 @@ $IIS_Client_Features_List=@(
     "TelnetClient"
 )
 $IIS_Server_Features_List=@(
-    # Web Server Role
+    # Server Roles
     "Web-Server",
-    # Web Server feature
     "Web-WebServer",
-    # Application Development
-    "Web-Net-Ext45",
-    "Web-Asp-Net45",
-        # Application Initialization?
-        # WebSocket?
-    # IIS 6 Management compatibility
-    "Web-Mgmt-Compat",
-    # .NET Framework 4 features
+    # Server features
     "NET-Framework-45-features",
     "NET-Framework-45-Core",
     "NET-Framework-45-ASPNET",
+    # Web Server role services: App Development
+    "Web-Net-Ext45",
+    "Web-Asp-Net45",
+    "Web-ISAPI-Ext",
+    "Web-ISAPI-Filter",
+    "Web-AppInit",
+    "Web-WebSocket",
+    # IIS 6 Management compatibility
+    "Web-Mgmt-Compat",
     # Telnet client
     "Telnet-Client"
 )
@@ -103,6 +104,4 @@ Invoke-Command -ScriptBlock { iisreset} -Verbose
 # Get IIS version
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
 LogWrite "IIS $IISVersion successfully installed"
-
-
 

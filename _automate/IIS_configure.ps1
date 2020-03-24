@@ -1,6 +1,8 @@
 ﻿<#
-.Synopsis
+.SYNOPSIS
     Automate IIS application pool configuration
+.NOTE
+    ..Disable automatic recycling on app pool
 #>
 
 # Creating and updating a log file with timestamps
