@@ -1,10 +1,12 @@
 ﻿<# 
 .Synopsis
     Automate IIS installation on Windows client or server
+.Next
+    Complete IIS Features list
 #>
 
 # Creating and updating a log file with timestamps
-$Logpath = "C:\"
+$Logpath = "C:\MPW_INSTALL"
 $Logfile = "$Logpath\IIS_install.log"
 $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
 Function LogWrite
@@ -102,9 +104,3 @@ LogWrite "IIS $IISVersion successfully installed"
 
 
 
-# Next:
-#
-# Insert tests: check if all the features are properly installed, and check the application's properties in IIS
-# 	Performance testing on the script?
-# Next steps: enabling application-level logging
-# Next steps: add authentication modes as parameters
