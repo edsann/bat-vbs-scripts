@@ -57,6 +57,8 @@ $IIS_Server_Features_List=@(
     # Application Development
     "Web-Net-Ext45",
     "Web-Asp-Net45",
+        # Application Initialization?
+        # WebSocket?
     # IIS 6 Management compatibility
     "Web-Mgmt-Compat",
     # .NET Framework 4 features
