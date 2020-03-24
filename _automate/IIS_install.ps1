@@ -63,7 +63,7 @@ $IIS_Server_Features_List=@(
     "Web-ISAPI-Ext",
     "Web-ISAPI-Filter",
     "Web-AppInit",
-    "Web-WebSocket",
+    "Web-WebSockets",
     # IIS 6 Management compatibility
     "Web-Mgmt-Compat",
     # Telnet client
