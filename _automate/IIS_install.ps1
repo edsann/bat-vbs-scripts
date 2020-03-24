@@ -3,7 +3,8 @@
     Automate IIS installation on Windows client or server
 .NOTE
     ..If error on installing feature, skip to the next
-    ..Complete IIS Features list
+    ..Complete IIS Features cross-platform list
+        ..Get-WindowsFeature | where {$_.DisplayName -match "DESCRIPTION,*"} | Select-Object Name
 #>
 
 # Creating and updating a log file with timestamps
@@ -97,7 +98,6 @@ elseif ($OSType -eq "Server"){
         CheckIf-Installed($installedfeature)
         }
 }
-
 
 # Reset IIS
 Invoke-Command -ScriptBlock { iisreset} -Verbose
