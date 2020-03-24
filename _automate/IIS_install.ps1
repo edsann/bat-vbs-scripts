@@ -2,7 +2,8 @@
 .SYNOPSIS
     Automate IIS installation on Windows client or server
 .NOTE
-    ..If error on installing feature, skip to the next
+    Tested on Windows 10 Pro build 1809
+    Tested on Windows Server 2016 Datacenter
     ..Complete IIS Features cross-platform list
         ..Get-WindowsFeature | where {$_.DisplayName -match "DESCRIPTION,*"} | Select-Object Name
 #>
@@ -16,7 +17,6 @@ Function LogWrite
    Param ([string]$logstring)
    Add-content $Logfile -value "$datetime $logstring "
 }
-
 
 LogWrite "Starting installation of IIS Web Server"
 LogWrite "Checking OS infos..."
@@ -67,7 +67,7 @@ $IIS_Server_Features_List=@(
     "Web-AppInit",
     "Web-WebSockets",
     # IIS 6 Management compatibility
-    "Web-Mgmt-Compat",
+    "Web-Mgmt-CompatS",
     # Telnet client
     "Telnet-Client"
 )
@@ -77,8 +77,8 @@ function CheckIf-Installed($installedfeature) {
     if ($installedfeature.Installed -eq $True){
         LogWrite "Windows Feature $feature successfully installed"
     } else {
-        LogWrite "Something went wrong installing $feature, please check again"
-        Exit
+        LogWrite "ERROR - Something went wrong installing $feature, please check again!"
+	    Exit
     }
 }
 
