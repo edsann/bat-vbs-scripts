@@ -1,8 +1,9 @@
 ﻿<# 
-.Synopsis
+.SYNOPSIS
     Automate IIS installation on Windows client or server
-.Next
-    Complete IIS Features list
+.NOTE
+    ..If error on installing feature, skip to the next
+    ..Complete IIS Features list
 #>
 
 # Creating and updating a log file with timestamps
@@ -87,12 +88,11 @@ if ($OSType -eq "Client"){
         $installedfeature = Get-WindowsOptionalFeature -name $feature
         CheckIf-Installed($installedfeature)
         }
-
 } 
 # Server (ServerManager installation module)
 elseif ($OSType -eq "Server"){
     foreach ($feature in $IIS_Server_Features_List){
-        Install-WindowsFeature -Name $feature
+        Install-WindowsFeature -Name $feature -ErrorAction SilentlyContinue
         $installedfeature = Get-WindowsFeature -name $feature
         CheckIf-Installed($installedfeature)
         }
