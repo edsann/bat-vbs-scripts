@@ -1,15 +1,15 @@
-1;".NET Framework Features";;"NET-Framework-45-features"
-2;".NET Framework 4.6";"NetFx4-AdvSrvs";"NET-Framework-45-Core"
-3;"ASP.NET 4.7";"NetFx4Extended-ASPNET45";"NET-Framework-45-ASPNET";
-4;"Web Server server role";"IIS-WebServerRole";"Web-Server";
-5;"Web Server role service";"IIS-WebServer";"Web-WebServer";
-6;"Application Development";"IIS-ApplicationDevelopment";"Web-App-Dev";
-7;".NET Extensibility 4.6";"IIS-NetFxExtensibility45";"Web-Net-Ext45";
-8;"Application Initialization";"IIS-ApplicationInit";"Web-AppInit";
-9;"ASP.NET 4.7";"IIS-ASPNET45";"Web-Asp-Net45";
-10;"ISAPI Extensions";"IIS-ISAPIExtensions";"Web-ISAPI-Ext";
-11;"ISAPI Filters";"IIS-ISAPIFilter";"Web-ISAPI-Filter";
-12;"Web Sockets protocol";"IIS-WebSockets";"Web-WebSockets";
-13;"Basic Authentication";"IIS-BasicAuthentication";"Web-Basic-Auth";
-14;"Windows Authentication";"IIS-WindowsAuthentication";"Web-Windows-Auth";
-15;"IIS 6 Management Compatibility";"IIS-IIS6ManagementCompatibility";"Web-Mgmt-Compat";
+".NET Framework Features";;"NET-Framework-45-features"
+".NET Framework 4.6";"NetFx4-AdvSrvs";"NET-Framework-45-Core"
+"ASP.NET 4.7";"NetFx4Extended-ASPNET45";"NET-Framework-45-ASPNET";
+"Web Server server role";"IIS-WebServerRole";"Web-Server";
+"Web Server role service";"IIS-WebServer";"Web-WebServer";
+"Application Development";"IIS-ApplicationDevelopment";"Web-App-Dev";
+".NET Extensibility 4.6";"IIS-NetFxExtensibility45";"Web-Net-Ext45";
+"Application Initialization";"IIS-ApplicationInit";"Web-AppInit";
+"ASP.NET 4.7";"IIS-ASPNET45";"Web-Asp-Net45";
+"ISAPI Extensions";"IIS-ISAPIExtensions";"Web-ISAPI-Ext";
+"ISAPI Filters";"IIS-ISAPIFilter";"Web-ISAPI-Filter";
+"Web Sockets protocol";"IIS-WebSockets";"Web-WebSockets";
+"Basic Authentication";"IIS-BasicAuthentication";"Web-Basic-Auth";
+"Windows Authentication";"IIS-WindowsAuthentication";"Web-Windows-Auth";
+"IIS 6 Management Compatibility";"IIS-IIS6ManagementCompatibility";"Web-Mgmt-Compat";

@@ -58,7 +58,7 @@ LogWrite "This is $OSName, so we're on a $OSType machine!"
 
 # IIS Features loaded from CSV file
 LogWrite "Gathering IIS specs..."
-$IISFeaturesList = @(Import-CSV ".\IIS_features.csv" -Delimiter ';' -header 'ID','FeatureName','Client','Server')
+$IISFeaturesList = @(Import-CSV ".\IIS_features.csv" -Delimiter ';' -header 'FeatureName','Client','Server')
 $IISFeaturesList = $IISFeaturesList.$OSType
 
 LogWrite "Installing IIS..."
