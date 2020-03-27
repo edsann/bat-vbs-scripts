@@ -28,7 +28,7 @@ Function Check-IsAdmin {
 function CheckIf-Installed($installedfeature) {
     LogWrite "Installing Windows Feature $installedfeature..."
     if ($installedfeature.Installed -eq $True){
-        LogWrite "Windows Feature $feature successfully installed"
+        LogWrite "Windows Feature $installedfeature successfully installed"
     } else {
         LogWrite "ERROR - Something went wrong installing $feature, please check again!"
         # Exit installation at the first error
