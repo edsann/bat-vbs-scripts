@@ -99,8 +99,9 @@ LogWrite "IIS $IISVersion successfully installed!"
 LogWrite "Installing MRT Application Suite..."
 # Create package msi in current dir
 ./mrt7526.exe /s /x /b"$PWD" /v"/qn"
-Start-sleep -s 10
-# Silently install msi (cmd) and create low-error log (run as admin!)
+# Wait for extraction
+Start-sleep -s 15
+# Silently install msi (cmd) and create low-error log
 $msiArguments = 
     '/qn', 
     '/i',
