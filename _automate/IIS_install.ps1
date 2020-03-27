@@ -1,90 +1,70 @@
 ﻿<# 
 .SYNOPSIS
     Automate IIS installation on Windows client or server
+.INPUT
+    CSV file with required IIS features
 .NOTE
     Tested on Windows 10 Pro build 1809
     Tested on Windows Server 2016 Datacenter
-    ..Complete IIS Features cross-platform list
-        ..Get-WindowsFeature | where {$_.DisplayName -match "DESCRIPTION,*"} | Select-Object Name
 #>
 
-# Creating and updating a log file with timestamps
-$Logpath = "C:\MPW_INSTALL"
-$Logfile = "$Logpath\IIS_install.log"
-$datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
+# Function: Writes a Log
 Function LogWrite
 {
    Param ([string]$logstring)
-   Add-content $Logfile -value "$datetime $logstring "
+   $LogPath = ".\Install.log"
+   $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
+   Add-content $LogPath -value "$datetime $logstring "
 }
 
+# Check if the current user is Administrator
+Function Check-IsAdmin { 
+    param() 
+    $principal = New-Object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent()) 
+    $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator) 
+}
+
+# Check if feature installation is successful
+function CheckIf-Installed($installedfeature) {
+    LogWrite "Installing Windows Feature $installedfeature..."
+    if ($installedfeature.Installed -eq $True){
+        LogWrite "Windows Feature $feature successfully installed"
+    } else {
+        LogWrite "ERROR - Something went wrong installing $feature, please check again!"
+        # Exit installation at the first error
+	    Exit
+    }
+}
+
+<# ------ #>
+
 LogWrite "Starting installation of IIS Web Server"
-LogWrite "Checking OS infos..."
+LogWrite "Are you an Administrator user?"
+
+# Check if current user is Administrator
+If (!( Check-IsAdmin) ) {
+    LogWrite "ERROR - The currently logged on user is not an Administrator! Exiting..."
+    exit 
+} Else {
+    LogWrite "We are Administrator! Proceeding..."
+}
+
 # Check OS type
+LogWrite "Checking OS infos..."
 $OSDetails = Get-ComputerInfo
 $OSName = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 $OSType = $OSDetails.WindowsInstallationType
 LogWrite "This is $OSName, so we're on a $OSType machine!"
 
-# IIS Components list
-$IIS_Client_Features_List=@(
-    # NetFx4 components
-    "NetFx4-AdvSrvs",
-    "NetFx4Extended-ASPNET45",
-    # Web Server role
-    "IIS-WebServerRole",
-    "IIS-WebServer",
-    # Application Development
-    "IIS-ApplicationDevelopment",
-    "IIS-ASPNET",
-    "IIS-ASPNET45", # To be fixed
-    "IIS-NetFxExtensibility47", # To be fixed
-    "IIS-ISAPIExtensions",
-    "IIS-ISAPIFilter",
-    "IIS-ApplicationInit",
-    "IIS-WebSockets",
-    # IIS 6 Compatibility
-    "IIS-IIS6ManagementCompatibility",
-    # Authentications
-    "IIS-BasicAuthentication",
-    "IIS-WindowsAuthentication",
-    # Misc.
-    "TelnetClient"
-)
-$IIS_Server_Features_List=@(
-    # Server Roles
-    "Web-Server",
-    "Web-WebServer",
-    # Server features
-    "NET-Framework-45-features",
-    "NET-Framework-45-Core",
-    "NET-Framework-45-ASPNET",
-    # Web Server role services: App Development
-    "Web-Net-Ext45",
-    "Web-Asp-Net45",
-    "Web-ISAPI-Ext",
-    "Web-ISAPI-Filter",
-    "Web-AppInit",
-    "Web-WebSockets",
-    # IIS 6 Management compatibility
-    "Web-Mgmt-CompatS",
-    # Telnet client
-    "Telnet-Client"
-)
+# IIS Features loaded from CSV file
+LogWrite "Gathering IIS specs..."
+$IISFeaturesList = @(Import-CSV ".\IIS_features.csv" -Delimiter ';' -header 'ID','FeatureName','Client','Server')
+$IISFeaturesList = $IISFeaturesList.$OSType
 
-# Check if installation is successful
-function CheckIf-Installed($installedfeature) {
-    if ($installedfeature.Installed -eq $True){
-        LogWrite "Windows Feature $feature successfully installed"
-    } else {
-        LogWrite "ERROR - Something went wrong installing $feature, please check again!"
-	    Exit
-    }
-}
-
-# Workstation (dism installation module)
+LogWrite "Installing IIS..."
+# Workstation (DISM installation module)
 if ($OSType -eq "Client"){
-    foreach ($feature in $IIS_Client_Features_List){
+    foreach ($feature in $IISFeaturesList){
         Enable-WindowsOptionalFeature -Online -FeatureName $feature
         $installedfeature = Get-WindowsOptionalFeature -name $feature
         CheckIf-Installed($installedfeature)
@@ -92,7 +72,7 @@ if ($OSType -eq "Client"){
 } 
 # Server (ServerManager installation module)
 elseif ($OSType -eq "Server"){
-    foreach ($feature in $IIS_Server_Features_List){
+    foreach ($feature in $IISFeaturesList){
         Install-WindowsFeature -Name $feature -ErrorAction SilentlyContinue
         $installedfeature = Get-WindowsFeature -name $feature
         CheckIf-Installed($installedfeature)
@@ -100,6 +80,7 @@ elseif ($OSType -eq "Server"){
 }
 
 # Reset IIS
+LogWrite "Resetting IIS..."
 Invoke-Command -ScriptBlock { iisreset} -Verbose
 # Get IIS version
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion

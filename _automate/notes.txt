@@ -1,0 +1,22 @@
+# Preliminary checks
+	# Am I an administrator user?
+# Install IIS
+	# Check if IIS is already installed --> Not helpful, installation is going anyway
+	# Check if IIS has correctly installed
+# Install MRT
+	# Extract MSI from EXE
+	# Run it with default values
+	# Check if everything was installed properly
+# Activate MRT (MicronStart)
+	# ?
+# Configure IIS
+	# Check if web applications are there
+	# Create application pool
+	# Configure application Pool
+	# Move web apps into the new application pool
+# Initialize MRT
+	# Read connection strings
+	# Update T05COMFLAGS for GDPR
+	# Create Internal company UTILITIES
+	# Create ref.empl. 
+	# Set default ref.empl. in admin user

@@ -18,3 +18,4 @@ $msiArguments =
     '"Micronpass Application Suite.msi"',
     '/l*v "C:\MPW_INSTALL\MRT_setup.log"'
 $Process = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
+$Process.ExitCode
