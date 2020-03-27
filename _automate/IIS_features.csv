@@ -13,3 +13,6 @@
 "Basic Authentication";"IIS-BasicAuthentication";"Web-Basic-Auth";
 "Windows Authentication";"IIS-WindowsAuthentication";"Web-Windows-Auth";
 "IIS 6 Management Compatibility";"IIS-IIS6ManagementCompatibility";"Web-Mgmt-Compat";
+"IIS 6 Management Console";"IIS-ManagementConsole";"Web-Lgcy-Mgmt-Console"
+"IIS 6 Scripting Tools";"IIS-LegacyScripts";"Web-Lgcy-Scripting"
+"IIS 6 WMI Compatibility";"IIS-WMICompatibility";"Web-WMI"
