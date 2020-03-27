@@ -9,6 +9,7 @@
     Tested on Windows 10 Pro build 1809
     Tested on Windows Server 2016 Datacenter
     ..To be tested on Windows Server 2019 Datacenter
+    ..Add a little more Write-Host
 #>
 
 # Function: Writes a Log
@@ -29,7 +30,6 @@ Function Check-IsAdmin {
 
 # Check if feature installation is successful
 function CheckIf-Installed($installedfeature) {
-    LogWrite "Installing Windows Feature $installedfeature..."
     if ($installedfeature.Installed -eq $True){
         LogWrite "Windows Feature $installedfeature successfully installed"
     } else {
@@ -44,7 +44,7 @@ Function Check_Program_Installed($programName) {
 $Program = Get-WMIObject -Query "SELECT * FROM Win32_Product WHERE Name Like '%$programName%'"
 $wmi_check = $Program -ne $null
 return $wmi_check;
-
+}
 <# ------ #>
 
 LogWrite "Starting installation of IIS Web Server"
