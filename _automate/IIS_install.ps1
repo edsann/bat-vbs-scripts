@@ -39,14 +39,13 @@ function CheckIf-Installed($installedfeature) {
 <# ------ #>
 
 LogWrite "Starting installation of IIS Web Server"
-LogWrite "Are you an Administrator user?"
 
 # Check if current user is Administrator
 If (!( Check-IsAdmin) ) {
     LogWrite "ERROR - The currently logged on user is not an Administrator! Exiting..."
     exit 
 } Else {
-    LogWrite "We are Administrator! Proceeding..."
+    LogWrite "We are an Administrator user! Proceeding..."
 }
 
 # Check OS type
@@ -84,5 +83,5 @@ LogWrite "Resetting IIS..."
 Invoke-Command -ScriptBlock { iisreset} -Verbose
 # Get IIS version
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
-LogWrite "IIS $IISVersion successfully installed"
+LogWrite "IIS $IISVersion successfully installed!"
 
