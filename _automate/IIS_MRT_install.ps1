@@ -1,12 +1,14 @@
 ﻿<# 
 .SYNOPSIS
     Automate IIS installation on Windows client or server
+    Automate MRT Application Suite installation
 .INPUT
     CSV file with required IIS features
+    MRTxxx.exe in same directory
 .NOTE
     Tested on Windows 10 Pro build 1809
     Tested on Windows Server 2016 Datacenter
-    To be tested on Windows Server 2019 Datacenter
+    ..To be tested on Windows Server 2019 Datacenter
 #>
 
 # Function: Writes a Log
@@ -36,6 +38,12 @@ function CheckIf-Installed($installedfeature) {
 	    Exit
     }
 }
+
+# Function: Check if program is installed, based on Name
+Function Check_Program_Installed($programName) {
+$Program = Get-WMIObject -Query "SELECT * FROM Win32_Product WHERE Name Like '%$programName%'"
+$wmi_check = $Program -ne $null
+return $wmi_check;
 
 <# ------ #>
 
@@ -86,3 +94,22 @@ Invoke-Command -ScriptBlock { iisreset} -Verbose
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
 LogWrite "IIS $IISVersion successfully installed!"
 
+<# ------ #>
+
+LogWrite "Installing MRT Application Suite..."
+# Create package msi in current dir
+./mrt7526.exe /s /x /b"$PWD" /v"/qn"
+Start-sleep -s 10
+# Silently install msi (cmd) and create low-error log (run as admin!)
+$msiArguments = 
+    '/qn', 
+    '/i',
+    '"Micronpass Application Suite.msi"',
+    '/le ".\MRT_install.log"'
+$Process = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
+# Check if installation was successful
+if (($Process.ExitCode -eq '0') -and (Check_Program_Installed("Micronpass Application Suite") -eq $True )) {
+    LogWrite "MRT Application Suite successfully installed!"
+} Else {
+    LogWrite "ERROR - Something went wrong installing MRT Application Suite, please check MRT_Install.log"
+}
