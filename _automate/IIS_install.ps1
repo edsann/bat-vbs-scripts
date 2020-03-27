@@ -6,6 +6,7 @@
 .NOTE
     Tested on Windows 10 Pro build 1809
     Tested on Windows Server 2016 Datacenter
+    To be tested on Windows Server 2019 Datacenter
 #>
 
 # Function: Writes a Log
