@@ -53,8 +53,6 @@ LogWrite "Starting installation of IIS Web Server"
 If (!( Check-IsAdmin) ) {
     LogWrite "ERROR - The currently logged on user is not an Administrator! Exiting..."
     exit 
-} Else {
-    LogWrite "We are an Administrator user! Proceeding..."
 }
 
 # Check OS type
@@ -69,7 +67,7 @@ LogWrite "Gathering IIS specs..."
 $IISFeaturesList = @(Import-CSV ".\IIS_features.csv" -Delimiter ';' -header 'FeatureName','Client','Server')
 $IISFeaturesList = $IISFeaturesList.$OSType
 
-LogWrite "Installing IIS..."
+LogWrite "Installing IIS features..."
 # Workstation (DISM installation module)
 if ($OSType -eq "Client"){
     foreach ($feature in $IISFeaturesList){
@@ -101,7 +99,7 @@ LogWrite "Installing MRT Application Suite..."
 ./mrt7526.exe /s /x /b"$PWD" /v"/qn"
 # Wait for extraction
 Start-sleep -s 15
-# Silently install msi (cmd) and create low-error log
+# Silently install msi (cmd) and create low-level error log
 $msiArguments = 
     '/qn', 
     '/i',
