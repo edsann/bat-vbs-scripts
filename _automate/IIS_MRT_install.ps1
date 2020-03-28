@@ -13,8 +13,7 @@
 #>
 
 # Function: Writes a Log
-Function LogWrite
-{
+Function LogWrite {
    Param ([string]$logstring)
    $LogPath = ".\Install.log"
    $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
@@ -41,13 +40,13 @@ function CheckIf-Installed($installedfeature) {
 
 # Function: Check if program is installed, based on Name
 Function Check_Program_Installed($programName) {
-$Program = Get-WMIObject -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%$programName%'"
-$wmi_check = $Program -ne $null
-return $wmi_check;
+    $Program = Get-WMIObject -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%$programName%'"
+    $wmi_check = $Program -ne $null
+    return $wmi_check;
 }
 <# ------ #>
 
-LogWrite "Starting installation of IIS Web Server"
+LogWrite "1. Starting installation of IIS Web Server"
 
 # Check if current user is Administrator
 If (!( Check-IsAdmin) ) {
@@ -94,7 +93,7 @@ LogWrite "IIS $IISVersion successfully installed!"
 
 <# ------ #>
 
-LogWrite "Installing MRT Application Suite..."
+LogWrite "2. Installing MRT Application Suite..."
 # Create package msi in current dir
 ./mrt7526.exe /s /x /b"$PWD" /v"/qn"
 # Wait for extraction
@@ -112,3 +111,6 @@ if (($Process.ExitCode -eq '0') -and (Check_Program_Installed("Micronpass Applic
 } Else {
     LogWrite "ERROR - Something went wrong installing MRT Application Suite, please check MRT_Install.log"
 }
+
+<# ------ #>
+
