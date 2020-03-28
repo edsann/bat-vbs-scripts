@@ -41,7 +41,7 @@ function CheckIf-Installed($installedfeature) {
 
 # Function: Check if program is installed, based on Name
 Function Check_Program_Installed($programName) {
-$Program = Get-WMIObject -Query "SELECT * FROM Win32_Product WHERE Name Like '%$programName%'"
+$Program = Get-WMIObject -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%$programName%'"
 $wmi_check = $Program -ne $null
 return $wmi_check;
 }
@@ -108,7 +108,7 @@ $msiArguments =
 $Process = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
 # Check if installation was successful
 if (($Process.ExitCode -eq '0') -and (Check_Program_Installed("Micronpass Application Suite") -eq $True )) {
-    LogWrite "MRT Application Suite successfully installed!"
+    LogWrite "MRT Application Suite $Program.successfully installed!"
 } Else {
     LogWrite "ERROR - Something went wrong installing MRT Application Suite, please check MRT_Install.log"
 }
