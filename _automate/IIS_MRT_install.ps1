@@ -6,9 +6,11 @@
     CSV file with required IIS features
     MRTxxx.exe in same directory
 .NOTE
-    Tested on Windows 10 Pro build 1809
     Tested on Windows Server 2016 Datacenter
     Tested on Windows Server 2019 Datacenter
+    To be tested on Windows 10 Pro build 1809
+    .Add Set-ExecutionPolicy Unrestricted
+    .Add check on MRT version to run the SQL scripts
     ..Add a little more Write-Host
 #>
 
@@ -71,7 +73,7 @@ LogWrite "Installing IIS features..."
 if ($OSType -eq "Client"){
     foreach ($feature in $IISFeaturesList){
         Enable-WindowsOptionalFeature -Online -FeatureName $feature
-        $installedfeature = Get-WindowsOptionalFeature -name $feature
+        $installedfeature = Get-WindowsOptionalFeature -Online -FeatureName $feature
         CheckIf-Installed($installedfeature)
         }
 } 
@@ -114,3 +116,4 @@ if (($Process.ExitCode -eq '0') -and (Check_Program_Installed("Micronpass Applic
 
 <# ------ #>
 
+# GeneraABL and MicronStart

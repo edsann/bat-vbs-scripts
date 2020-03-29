@@ -1,16 +1,18 @@
-[#] Preliminary checks
+[] Preliminary checks
 	[OK] Am I an administrator user?
-	[#] Some other checks?
+	[] Are the execution policies correct?
+	[] Some other checks?
 [OK] Install IIS
 	[OK] Check if IIS is already installed --> Not helpful, installation is going anyway
 	[OK] Check if IIS has correctly installed
-[#] Install Crystal Reports
+[] Install Crystal Reports
 [OK] Install MRT
 	[OK] Extract MSI from EXE
 	[OK] Run it with default values
 	[OK] Check if everything was installed properly
-[#] Activate MRT (MicronStart)
-	# ?
+[] Activate MRT (MicronStart)
+	[] Run GeneraABL and create ABL code
+	[] Wait for input from user, then continue
 [] Configure IIS
 	[] Check if web applications are there
 	[] Create application pool
