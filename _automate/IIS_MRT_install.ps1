@@ -50,7 +50,8 @@ Function Check_Program_Installed($programName) {
     $wmi_check = $Program -ne $null
     return $wmi_check;
 }
-<# ------ #>
+
+<# ------------------------------------ #>
 
 LogWrite "1. Starting installation of IIS Web Server"
 
@@ -101,7 +102,7 @@ Invoke-Command -ScriptBlock { iisreset} -Verbose
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
 LogWrite "IIS $IISVersion successfully installed!"
 
-<# ------ #>
+<# ------------------------------------ #>
 
 LogWrite "2. Installing MRT Application Suite..."
 # Create package msi in current dir
@@ -122,7 +123,7 @@ if (($Process.ExitCode -eq '0') -and (Check_Program_Installed("Micronpass Applic
     LogWrite "ERROR - Something went wrong installing MRT Application Suite, please check MRT_Install.log"
 }
 
-<# ------ #>
+<# ------------------------------------ #>
 
 # Open GeneraABL
 cd C:\MPW\GeneraAbl\
