@@ -140,4 +140,5 @@ Write-Host "Going on..."
 <#
 .TESTED ON
     Windows Server 2019
+    Windows Server 2016
 #>
