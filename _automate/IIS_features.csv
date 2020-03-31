@@ -18,3 +18,4 @@
 "IIS 6 Management Console";"IIS-LegacySnapIn";"Web-Lgcy-Mgmt-Console"
 "IIS 6 Scripting Tools";"IIS-LegacyScripts";"Web-Lgcy-Scripting"
 "IIS 6 WMI Compatibility";"IIS-WMICompatibility";"Web-WMI"
+"Telnet Client";"TelnetClient";"Telnet-Client"
