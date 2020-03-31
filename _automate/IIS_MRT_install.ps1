@@ -80,7 +80,7 @@ if ($OSType -eq "Client"){
     foreach ($feature in $IISFeaturesList){
         Enable-WindowsOptionalFeature -Online -FeatureName $feature | Out-Null
         $installedfeature = (Get-WindowsOptionalFeature -Online -FeatureName $feature).featureName
-        CheckIf-Installed($installedfeature,$command)
+        CheckIf-Installed($installedfeature,$command,$result)
         }
 } 
 # Server (ServerManager installation module)
@@ -90,7 +90,7 @@ elseif ($OSType -eq "Server"){
     foreach ($feature in $IISFeaturesList){
         Install-WindowsFeature -Name $feature -ErrorAction SilentlyContinue | Out-Null
         $installedfeature = Get-WindowsFeature -name $feature
-        CheckIf-Installed($installedfeature,$command)
+        CheckIf-Installed($installedfeature,$command,$result)
         }
 }
 
