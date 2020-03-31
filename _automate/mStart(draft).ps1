@@ -1,16 +1,11 @@
 ﻿# Open GeneraABL
 cd C:\MPW\GeneraAbl\
 Start-process ./GeneraAbl.exe 
-
-if (
-    # Systeminfo --> System Model = Physical 
-    # get-wmiobject win32_computersystem | fl model
-){
-    $keys = "{TAB}{ENTER}"
-} else {
-    # Systeminfo --> System Model = Virtual 
-    # get-wmiobject win32_computersystem | fl model
+# Check virtual or physical server
+if ($(get-wmiobject win32_computersystem).model -match "virtual,*"){
     $keys = "{TAB}{TAB}{ENTER}"
+} else {
+    $keys = "{TAB}{ENTER}"
 }
 $wshshell = New-Object -ComObject WScript.Shell
 Start-Sleep -Seconds 1

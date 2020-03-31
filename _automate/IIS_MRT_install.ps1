@@ -9,9 +9,12 @@
     Tested on Windows Server 2016 Datacenter
     Tested on Windows Server 2019 Datacenter
     To be tested on Windows 10 Pro build 1809
+    .Re-test all IIS features on Client
+    
     .Add Set-ExecutionPolicy Unrestricted
-    .Add check on MRT version to run the SQL scripts
+    .CheckIf-Installed is getting ugly, clean it up!
     ..Add a little more Write-Host
+    ..Add speed-test
 #>
 
 # Function: Writes a Log
@@ -30,8 +33,8 @@ Function Check-IsAdmin {
 }
 
 # Check if feature installation is successful
-function CheckIf-Installed($installedfeature) {
-    if ($installedfeature.Installed -eq $True){
+function CheckIf-Installed($installedfeature,$command,$result) {
+    if ($installedfeature.$command -eq $result){
         LogWrite "Windows Feature $installedfeature successfully installed"
     } else {
         LogWrite "ERROR - Something went wrong installing $feature, please check again!"
@@ -71,18 +74,22 @@ $IISFeaturesList = $IISFeaturesList.$OSType
 LogWrite "Installing IIS features..."
 # Workstation (DISM installation module)
 if ($OSType -eq "Client"){
+    $command = "State"
+    $result = "Enabled"
     foreach ($feature in $IISFeaturesList){
-        Enable-WindowsOptionalFeature -Online -FeatureName $feature
-        $installedfeature = Get-WindowsOptionalFeature -Online -FeatureName $feature
-        CheckIf-Installed($installedfeature)
+        Enable-WindowsOptionalFeature -Online -FeatureName $feature | Out-Null
+        $installedfeature = (Get-WindowsOptionalFeature -Online -FeatureName $feature).featureName
+        CheckIf-Installed($installedfeature,$command)
         }
 } 
 # Server (ServerManager installation module)
 elseif ($OSType -eq "Server"){
+    $command = "Installed"
+    $result = $True
     foreach ($feature in $IISFeaturesList){
-        Install-WindowsFeature -Name $feature -ErrorAction SilentlyContinue
+        Install-WindowsFeature -Name $feature -ErrorAction SilentlyContinue | Out-Null
         $installedfeature = Get-WindowsFeature -name $feature
-        CheckIf-Installed($installedfeature)
+        CheckIf-Installed($installedfeature,$command)
         }
 }
 
@@ -116,4 +123,20 @@ if (($Process.ExitCode -eq '0') -and (Check_Program_Installed("Micronpass Applic
 
 <# ------ #>
 
-# GeneraABL and MicronStart
+# Open GeneraABL
+cd C:\MPW\GeneraAbl\
+Start-process ./GeneraAbl.exe 
+# Check virtual or physical server
+if ($(get-wmiobject win32_computersystem).model -match "virtual,*"){
+    $keys = "{TAB}{TAB}{ENTER}"
+} else {
+    $keys = "{TAB}{ENTER}"
+}
+$wshshell = New-Object -ComObject WScript.Shell
+Start-Sleep -Seconds 1
+$wshshell.sendkeys($keys)
+
+# Open MicronStart and wait for input
+cd C:\MPW\MicronStart
+Start-process ./mStart.exe -Wait
+Write-Host "Going on..."
