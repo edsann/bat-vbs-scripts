@@ -12,6 +12,7 @@
     .Re-test all IIS features on Client
     
     .Add Set-ExecutionPolicy Unrestricted
+        Set-Executionpolicy -ExecutionPolicy Unrestricted -Force -ErrorAction SilentlyContinue 
     .CheckIf-Installed is getting ugly, clean it up!
     ..Add a little more Write-Host
     ..Add speed-test
