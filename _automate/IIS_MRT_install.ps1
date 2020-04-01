@@ -50,7 +50,6 @@ If ((Get-ExecutionPolicy) -ne "Unrestricted" ) {
 
 # Check OS type 
 $OSDetails = Get-ComputerInfo
-$OSName = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
 $OSType = $OSDetails.WindowsInstallationType
 
 # Load IIS Features from CSV file
@@ -132,5 +131,5 @@ $wshshell.sendkeys($keys)
 Start-sleep -Seconds 5
 cd C:\MPW\MicronStart
 Start-process ./mStart.exe -Wait
-Write-Host "Going on..."
+Write-Host "To be continued..."
 
