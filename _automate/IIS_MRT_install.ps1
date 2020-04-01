@@ -3,7 +3,7 @@
     Install IIS on Windows client or server
     Install MRT Application Suite
 .TESTED ON
-    Windows Server 2019, Windows Server 2016, Windows 10 Pro build 1809
+    
 .INPUT
     CSV file with required IIS features in the same directory
     MRTxxx.exe in same directory
@@ -94,15 +94,13 @@ LogWrite "IIS $IISVersion successfully installed!"
 LogWrite "3. Install MRT Application Suite..."
 
 # Create package msi in current dir
-./mrt7526.exe /s /x /b"$PWD" /v"/qn"
+$exe = (Get-Item -Path .\mrt*)
+$arglist = "/s","/x",'b"$PWD','/v"/qn"'
+Start-Process $exe $arglist
 # Wait for extraction
 Start-sleep -s 20
 # Silently install msi (cmd) and create low-level error log
-$msiArguments = 
-    '/qn', 
-    '/i',
-    '"Micronpass Application Suite.msi"',
-    '/l*e ".\MRT_install.log"'
+$msiArguments = '/qn','/i','"Micronpass Application Suite.msi"','/l*e ".\MRT_install.log"'
 $Process = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
 # Check if installation was successful
 $Program = Get-WMIObject -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%$programName%'"
