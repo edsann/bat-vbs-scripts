@@ -16,7 +16,7 @@
 
 Set-Executionpolicy -ExecutionPolicy Unrestricted -Force -ErrorAction SilentlyContinue 
 
-# Function: Writes a Log
+# Write Log and write host
 Function LogWrite {
    Param ([string]$logstring)
    $LogPath = ".\install.log"
@@ -105,7 +105,7 @@ $wmi_check = $Program -ne $null
 if (($Install.ExitCode -eq '0') -and ($wmi_check -eq $True )) {
     LogWrite "MRT Application Suite $($Program.Version) successfully installed!"
 } Else {
-    LogWrite "ERROR - Something went wrong installing MRT Application Suite, please check MRT_Install.log"
+    LogWrite "ERROR - Something went wrong installing MRT Application Suite, please check msi log"
     Exit
 }
 
@@ -130,5 +130,6 @@ $wshshell.sendkeys($keys)
 Start-sleep -Seconds 5
 cd C:\MPW\MicronStart
 Start-process ./mStart.exe -Wait
+
 Write-Host "To be continued..."
 
