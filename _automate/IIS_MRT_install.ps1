@@ -1,14 +1,13 @@
 ﻿<# 
 .SYNOPSIS
-    Automate IIS installation on Windows client or server
-    Automate MRT Application Suite installation
+    Install IIS on Windows client or server
+    Install MRT Application Suite
 .TESTED ON
-    See EOF
+    Windows Server 2019, Windows Server 2016, Windows 10 Pro build 1809
 .INPUT
-    CSV file with required IIS features
+    CSV file with required IIS features (in the right order) in the same directory
     MRTxxx.exe in same directory
-.NOTE
-    .Manually re-test all IIS features on Client
+.NEXT
     .Clean up IIS installation function
     ..Add speed-test
     ..Add DSC test at the end of the script
@@ -85,7 +84,7 @@ elseif ($OSType -eq "Server"){
 }
 
 # Reset IIS
-Invoke-Command -ScriptBlock { iisreset} -Verbose | LogWrite
+Invoke-Command -ScriptBlock { iisreset} -Verbose
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
 LogWrite "IIS $IISVersion successfully installed!"
 
@@ -136,9 +135,3 @@ cd C:\MPW\MicronStart
 Start-process ./mStart.exe -Wait
 Write-Host "Going on..."
 
-
-<#
-.TESTED ON
-    Windows Server 2019
-    Windows Server 2016
-#>

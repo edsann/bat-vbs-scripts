@@ -6,9 +6,9 @@
 "Application Development";"IIS-ApplicationDevelopment";"Web-App-Dev";
 ".NET Extensibility 4.6";"IIS-NetFxExtensibility45";"Web-Net-Ext45";
 "Application Initialization";"IIS-ApplicationInit";"Web-AppInit";
-"ASP.NET 4.7";"IIS-ASPNET45";"Web-Asp-Net45";
 "ISAPI Extensions";"IIS-ISAPIExtensions";"Web-ISAPI-Ext";
 "ISAPI Filters";"IIS-ISAPIFilter";"Web-ISAPI-Filter";
+"ASP.NET 4.7";"IIS-ASPNET45";"Web-Asp-Net45";
 "Web Sockets protocol";"IIS-WebSockets";"Web-WebSockets";
 "Basic Authentication";"IIS-BasicAuthentication";"Web-Basic-Auth";
 "Windows Authentication";"IIS-WindowsAuthentication";"Web-Windows-Auth";
@@ -16,6 +16,6 @@
 "IIS Management Console";"IIS-ManagementConsole";"Web-Mgmt-Console";
 "IIS 6 Management Compatibility";"IIS-IIS6ManagementCompatibility";"Web-Mgmt-Compat";
 "IIS 6 Management Console";"IIS-LegacySnapIn";"Web-Lgcy-Mgmt-Console"
-"IIS 6 Scripting Tools";"IIS-LegacyScripts";"Web-Lgcy-Scripting"
 "IIS 6 WMI Compatibility";"IIS-WMICompatibility";"Web-WMI"
+"IIS 6 Scripting Tools";"IIS-LegacyScripts";"Web-Lgcy-Scripting"
 "Telnet Client";"TelnetClient";"Telnet-Client"
