@@ -95,7 +95,6 @@ LogWrite "3. Install MRT Application Suite..."
 
 # Create package msi in current dir
 .\mrt7526 /s /x /b"$PWD" /v"/qn"
-# Wait for extraction
 Start-sleep -s 20
 # Silently install msi (cmd) and create error log
 $msiArguments = '/qn','/i','"Micronpass Application Suite.msi"','/l*e ".\msi.log"'
