@@ -5,7 +5,7 @@
 .TESTED ON
     Windows Server 2019, Windows Server 2016, Windows 10 Pro build 1809
 .INPUT
-    CSV file with required IIS features (in the right order) in the same directory
+    CSV file with required IIS features in the same directory
     MRTxxx.exe in same directory
 .NEXT
     .Clean up IIS installation function
@@ -61,7 +61,8 @@ LogWrite "2. Install IIS features"
 # Workstation (DISM installation module)
 if ($OSType -eq "Client"){
     foreach ($feature in $IISFeaturesList){
-        Enable-WindowsOptionalFeature -Online -FeatureName $feature | Out-Null
+        # The -all switch automatically installs all the parent features
+        Enable-WindowsOptionalFeature -All -Online -FeatureName $feature | Out-Null 
         if ((Get-WindowsOptionalFeature -Online -FeatureName $feature).State -eq "Enabled"){
             LogWrite "Windows Feature $feature successfully installed"
         } else {
