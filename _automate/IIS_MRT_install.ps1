@@ -3,11 +3,12 @@
     Install IIS on Windows client or server
     Install MRT Application Suite
 .TESTED ON
-    
+    Windows Server 2016, Windows Server 2019, Windows 10 Pro build 1809
 .INPUT
     CSV file with required IIS features in the same directory
     MRTxxx.exe in same directory
 .NEXT
+    .Detach mrt filename
     .Clean up IIS installation function
     ..Add speed-test
     ..Add DSC test at the end of the script
@@ -94,21 +95,20 @@ LogWrite "IIS $IISVersion successfully installed!"
 LogWrite "3. Install MRT Application Suite..."
 
 # Create package msi in current dir
-$exe = (Get-Item -Path .\mrt*)
-$arglist = "/s","/x",'b"$PWD','/v"/qn"'
-Start-Process $exe $arglist
+.\mrt7526 /s /x /b"$PWD" /v"/qn"
 # Wait for extraction
 Start-sleep -s 20
-# Silently install msi (cmd) and create low-level error log
-$msiArguments = '/qn','/i','"Micronpass Application Suite.msi"','/l*e ".\MRT_install.log"'
-$Process = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
+# Silently install msi (cmd) and create error log
+$msiArguments = '/qn','/i','"Micronpass Application Suite.msi"','/l*e ".\msi.log"'
+$Install = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
 # Check if installation was successful
 $Program = Get-WMIObject -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%$programName%'"
 $wmi_check = $Program -ne $null
-if (($Process.ExitCode -eq '0') -and ($wmi_check -eq $True )) {
+if (($Install.ExitCode -eq '0') -and ($wmi_check -eq $True )) {
     LogWrite "MRT Application Suite $($Program.Version) successfully installed!"
 } Else {
     LogWrite "ERROR - Something went wrong installing MRT Application Suite, please check MRT_Install.log"
+    Exit
 }
 
 <# ------------------------------------ #>
