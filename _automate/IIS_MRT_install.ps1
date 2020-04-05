@@ -60,6 +60,12 @@ $OSType = $OSDetails.WindowsInstallationType
 $step = $step +1; 
 LogWrite "$step. Loading CSV and installing IIS features"
 
+# Check if features file is present
+if(!(Test-path ".\IIS_features.csv")) { 
+    LogWrite "ERROR - IIS feature list not found! Please copy it to root folder."  
+    break
+} 
+
 # Load IIS Features from CSV file
 $IISFeaturesList = @(Import-CSV ".\IIS_features.csv" -Delimiter ';' -header 'FeatureName','Client','Server')
 $IISFeaturesList = $IISFeaturesList.$OSType
