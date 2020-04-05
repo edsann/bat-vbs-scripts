@@ -55,6 +55,9 @@ If ((Get-ExecutionPolicy) -ne "Unrestricted" ) {
 $OSDetails = Get-ComputerInfo
 $OSType = $OSDetails.WindowsInstallationType
 
+# Do you want to install SQLExpr and SSMS?
+$SQLswitch = Read-Host -prompt "Do you want to install SQLExpr and SSMS? [Y] Yes [N] No"
+
 <# ------------------------------------ #>
 
 $step = $step +1; 
@@ -97,48 +100,52 @@ LogWrite "IIS $IISVersion successfully installed!"
 
 <# ------------------------------------ #>
 
-$step = $step +1; 
-LogWrite "$step. Installing SQL Server Express"
-$SQLexpress_Setupfile = "SQLEXPR_x64_ENU.exe"
+if ($SQLswitch -eq "Y"){
 
-# Prompt user input
-$SQLpassword = Read-Host -prompt "Insert SQL system administrator password: "
-# Check password complexity
-$SQLinstance = Read-Host -prompt "Insert SQL Server instance name: "
+    $step = $step +1; 
+    LogWrite "$step. Installing SQL Server Express"
+    $SQLexpress_Setupfile = "SQLEXPR_x64_ENU.exe"
 
-# Check if setup file is present
-if(!(Test-path ".\$Sqlexpress_Setupfile")) { 
-    LogWrite "ERROR - Sqlexpress setup file not found! Please copy it to root folder."  
-    break
-} 
+    # Prompt user input
+    $SQLpassword = Read-Host -prompt "Insert SQL system administrator password: "
+    # Check password complexity
+    $SQLinstance = Read-Host -prompt "Insert SQL Server instance name: "
 
-# Check if an instance with the same name already exists
-if (!(Get-Service -displayname "*$($SQLinstance)*")){
-    continue
-} else {
-    LogWrite "ERROR - Service $SQLinstance is already installed:"
-    get-service -displayname "*$($SQLinstance)*" | LogWrite
-    break
-}
+    # Check if setup file is present
+    if(!(Test-path ".\$Sqlexpress_Setupfile")) { 
+        LogWrite "ERROR - Sqlexpress setup file not found! Please copy it to root folder."  
+        break
+    } 
 
-# Silently extract setup media file
-./SQLEXPR_x64_ENU.exe /q /x:".\SQL_Install"
-# SQL Server installation 
-#  /Q - Silent installation, no GUI
-#  /IACCEPTSQLSERVERLICENSETERMS - Automatically accepts SQL Server license terms
-#  /ACTION="install" - Performs installation
-#  /FEATURES="SQLengine" - Only installs SQL Server engine
-#  /INSTANCENAME - Name of the instance
-#  /SECURITYMODE=SQL - Use SQL Authentication mode
-#  /SAPWD - System Administrator's password
-./SQL_Install/setup.exe /Q /IACCEPTSQLSERVERLICENSETERMS /ACTION="install" /FEATURES=SQLengine /INSTANCENAME="SQLEXPRESS" /SECURITYMODE=SQL /SAPWD="$SQLpassword" /INDICATEPROGRESS | Out-file ".\SQL_install.log"
+    # Check if an instance with the same name already exists
+    if (!(Get-Service -displayname "*$($SQLinstance)*")){
+        continue
+    } else {
+        LogWrite "ERROR - Service $SQLinstance is already installed:"
+        get-service -displayname "*$($SQLinstance)*" | LogWrite
+        break
+    }
 
-# Check if installation was successful
-if (Get-Service -displayname "*$($SQLinstance)*" -ErrorAction SilentlyContinue){
-    LogWrite "SQL instance $SQLinstance successfully installed"
-} else {
-    LogWrite "ERROR - Something went wrong installing SQL instance $SQLinstance, please check SQL installation log"
-    break
+    # Silently extract setup media file
+    ./SQLEXPR_x64_ENU.exe /q /x:".\SQL_Install"
+    # SQL Server installation 
+    #  /Q - Silent installation, no GUI
+    #  /IACCEPTSQLSERVERLICENSETERMS - Automatically accepts SQL Server license terms
+    #  /ACTION="install" - Performs installation
+    #  /FEATURES="SQLengine" - Only installs SQL Server engine
+    #  /INSTANCENAME - Name of the instance
+    #  /SECURITYMODE=SQL - Use SQL Authentication mode
+    #  /SAPWD - System Administrator's password
+    ./SQL_Install/setup.exe /Q /IACCEPTSQLSERVERLICENSETERMS /ACTION="install" /FEATURES=SQLengine /INSTANCENAME="SQLEXPRESS" /SECURITYMODE=SQL /SAPWD="$SQLpassword" /INDICATEPROGRESS | Out-file ".\SQL_install.log"
+
+    # Check if installation was successful
+    if (Get-Service -displayname "*$($SQLinstance)*" -ErrorAction SilentlyContinue){
+        LogWrite "SQL instance $SQLinstance successfully installed"
+    } else {
+        LogWrite "ERROR - Something went wrong installing SQL instance $SQLinstance, please check SQL installation log"
+        break
+    }
+
 }
 
 <# ------------------------------------ #>
