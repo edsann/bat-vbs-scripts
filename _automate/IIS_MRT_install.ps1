@@ -6,10 +6,12 @@
     Windows Server 2016, Windows Server 2019, Windows 10 Pro build 1809
 .INPUT
     CSV file with required IIS features in the same directory
+    SQLEXPR_x64_ENU.exe in same directory
     MRTxxx.exe in same directory
 .NEXT
-    .Detach mrt filename
     .Clean up IIS installation function
+    .Add initial installation switches
+    .SQL Server Express
     ..Add speed-test
     ..Add DSC test at the end of the script
 #>
@@ -34,29 +36,33 @@ Function Check-IsAdmin {
 
 <# ------------------------------------ #>
 
-LogWrite "1. Check environment info"
+$step = 1
+LogWrite "$step. Check environment info"
 
 # Check if current user is Administrator
 If (!( Check-IsAdmin) ) {
     LogWrite "ERROR - The currently logged on user is not an Administrator!"
-    exit 
+    break 
 }
 
 # Check current execution policy
 If ((Get-ExecutionPolicy) -ne "Unrestricted" ) {
-    LogWrite "ERROR - The Execution Policies on the current session prevents this script to operate!"
-    exit 
+    LogWrite "ERROR - The Execution Policies on the current session prevents this script from working!"
+    break 
 }
 
 # Check OS type 
 $OSDetails = Get-ComputerInfo
 $OSType = $OSDetails.WindowsInstallationType
 
+<# ------------------------------------ #>
+
+$step = $step +1; 
+LogWrite "$step. Loading CSV and installing IIS features"
+
 # Load IIS Features from CSV file
 $IISFeaturesList = @(Import-CSV ".\IIS_features.csv" -Delimiter ';' -header 'FeatureName','Client','Server')
 $IISFeaturesList = $IISFeaturesList.$OSType
-
-LogWrite "2. Install IIS features"
 
 # Workstation (DISM installation module)
 if ($OSType -eq "Client"){
@@ -67,7 +73,7 @@ if ($OSType -eq "Client"){
             LogWrite "Windows Feature $feature successfully installed"
         } else {
             LogWrite "ERROR - Something went wrong installing $feature, please check again!"
-	        Exit
+	        break
         }
     }
 } 
@@ -79,7 +85,7 @@ elseif ($OSType -eq "Server"){
             LogWrite "Windows Feature $feature successfully installed"
         } else {
             LogWrite "ERROR - Something went wrong installing $feature, please check again!"
-	        Exit
+	        break
         }
     }
 }
@@ -91,27 +97,84 @@ LogWrite "IIS $IISVersion successfully installed!"
 
 <# ------------------------------------ #>
 
-LogWrite "3. Install MRT Application Suite..."
+$step = $step +1; 
+LogWrite "$step. Installing SQL Server Express"
+$SQLexpress_Setupfile = "SQLEXPR_x64_ENU.exe"
+
+# Prompt user input
+$SQLpassword = Read-Host -prompt "Insert SQL system administrator password: "
+# Check password complexity
+$SQLinstance = Read-Host -prompt "Insert SQL Server instance name: "
+
+# Check if setup file is present
+if(!(Test-path ".\$Sqlexpress_Setupfile")) { 
+    LogWrite "ERROR - Sqlexpress setup file not found! Please copy it to root folder."  
+    break
+} 
+
+# Check if an instance with the same name already exists
+if (!(Get-Service -displayname "*$($SQLinstance)*")){
+    continue
+} else {
+    LogWrite "ERROR - Service $SQLinstance is already installed:"
+    get-service -displayname "*$($SQLinstance)*" | LogWrite
+    break
+}
+
+# Silently extract setup media file
+./SQLEXPR_x64_ENU.exe /q /x:".\SQL_Install"
+# SQL Server installation 
+#  /Q - Silent installation, no GUI
+#  /IACCEPTSQLSERVERLICENSETERMS - Automatically accepts SQL Server license terms
+#  /ACTION="install" - Performs installation
+#  /FEATURES="SQLengine" - Only installs SQL Server engine
+#  /INSTANCENAME - Name of the instance
+#  /SECURITYMODE=SQL - Use SQL Authentication mode
+#  /SAPWD - System Administrator's password
+./SQL_Install/setup.exe /Q /IACCEPTSQLSERVERLICENSETERMS /ACTION="install" /FEATURES=SQLengine /INSTANCENAME="SQLEXPRESS" /SECURITYMODE=SQL /SAPWD="$SQLpassword" /INDICATEPROGRESS | Out-file ".\SQL_install.log"
+
+# Check if installation was successful
+if (Get-Service -displayname "*$($SQLinstance)*" -ErrorAction SilentlyContinue){
+    LogWrite "SQL instance $SQLinstance successfully installed"
+} else {
+    LogWrite "ERROR - Something went wrong installing SQL instance $SQLinstance, please check SQL installation log"
+    break
+}
+
+<# ------------------------------------ #>
+
+$step = $step+1; 
+LogWrite "$step. Install MRT Application Suite"
+
+# Check if setup file is present
+$mrtsetupfile = (Get-Item mrt*.exe)
+if(!(Test-path ".\$mrtsetupfile")) { 
+    LogWrite "ERROR - MRT setup file not found! Please copy it to root folder."  
+    break
+} 
 
 # Create package msi in current dir
-.\mrt7526 /s /x /b"$PWD" /v"/qn"
+Rename-Item $mrtsetupfile -NewName mrt_install.exe
+.\mrt_install.exe /s /x /b"$PWD" /v"/qn"
 Start-sleep -s 20
 # Silently install msi (cmd) and create error log
 $msiArguments = '/qn','/i','"Micronpass Application Suite.msi"','/l*e ".\msi.log"'
 $Install = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
 # Check if installation was successful
 $Program = Get-WMIObject -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%$programName%'"
+Start-sleep -s 10
 $wmi_check = $Program -ne $null
-if (($Install.ExitCode -eq '0') -and ($wmi_check -eq $True )) {
+if (($Install.breakCode -eq '0') -and ($wmi_check -eq $True )) {
     LogWrite "MRT Application Suite $($Program.Version) successfully installed!"
 } Else {
     LogWrite "ERROR - Something went wrong installing MRT Application Suite, please check msi log"
-    Exit
+    break
 }
 
 <# ------------------------------------ #>
 
-LogWrite "4. Activating product"
+$step = $step +1; 
+LogWrite "$step. Activating product"
 
 # Open GeneraABL
 cd C:\MPW\GeneraAbl\
@@ -133,3 +196,6 @@ Start-process ./mStart.exe -Wait
 
 Write-Host "To be continued..."
 
+<# ------------------------------------ #>
+
+Set-ExecutionPolicy -ExecutionPolicy Restricted
