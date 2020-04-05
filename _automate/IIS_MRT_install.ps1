@@ -55,9 +55,6 @@ If ((Get-ExecutionPolicy) -ne "Unrestricted" ) {
 $OSDetails = Get-ComputerInfo
 $OSType = $OSDetails.WindowsInstallationType
 
-# Do you want to install SQLExpr and SSMS?
-$SQLswitch = Read-Host -prompt "Do you want to install SQLExpr and SSMS? [Y] Yes [N] No"
-
 <# ------------------------------------ #>
 
 $step = $step +1; 
@@ -99,6 +96,9 @@ $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows
 LogWrite "IIS $IISVersion successfully installed!"
 
 <# ------------------------------------ #>
+
+# Do you want to install SQLExpr and SSMS?
+$SQLswitch = Read-Host -prompt "Do you want to install SQLExpr and SSMS? [Y] Yes [N] No"
 
 if ($SQLswitch -eq "Y"){
 
@@ -146,6 +146,8 @@ if ($SQLswitch -eq "Y"){
         break
     }
 
+} else { 
+    LogWrite "SQL Server installation skipped. Proceeding with the following steps..."
 }
 
 <# ------------------------------------ #>
