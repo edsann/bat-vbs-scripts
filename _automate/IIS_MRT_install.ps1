@@ -133,6 +133,7 @@ if ($SQLswitch -eq "Y"){
 
     # Silently extract setup media file
     ./SQLEXPR_x64_ENU.exe /q /x:".\SQL_Install"
+    Start-sleep -s 30
     # SQL Server installation 
     #  /Q - Silent installation, no GUI
     #  /IACCEPTSQLSERVERLICENSETERMS - Automatically accepts SQL Server license terms
@@ -142,6 +143,7 @@ if ($SQLswitch -eq "Y"){
     #  /SECURITYMODE=SQL - Use SQL Authentication mode
     #  /SAPWD - System Administrator's password
     ./SQL_Install/setup.exe /Q /IACCEPTSQLSERVERLICENSETERMS /ACTION="install" /FEATURES=SQLengine /INSTANCENAME="SQLEXPRESS" /SECURITYMODE=SQL /SAPWD="$SQLpassword" /INDICATEPROGRESS | Out-file ".\SQL_install.log"
+    Start-sleep -s 120
 
     # Check if installation was successful
     if (Get-Service -displayname "*$($SQLinstance)*" -ErrorAction SilentlyContinue){
