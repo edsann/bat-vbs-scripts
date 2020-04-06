@@ -11,7 +11,6 @@
 .NEXT
     .Clean up IIS installation function
     .Add initial installation switches
-    .SQL Server Express
     ..Add speed-test
     ..Add DSC test at the end of the script
 #>
@@ -19,8 +18,8 @@
 Set-Executionpolicy -ExecutionPolicy Unrestricted -Force -ErrorAction SilentlyContinue 
 
 # Write Log and write host
-Function LogWrite {
-   Param ([string]$logstring)
+function LogWrite {
+   param ([string]$logstring)
    $LogPath = ".\install.log"
    $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
    Add-content $LogPath -value "$datetime $logstring "
@@ -28,7 +27,7 @@ Function LogWrite {
 }
 
 # Check if the current user is Administrator
-Function Check-IsAdmin { 
+function Check-IsAdmin { 
     param() 
     $principal = New-Object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent()) 
     $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator) 
@@ -40,13 +39,13 @@ $step = 1
 LogWrite "$step. Check environment info"
 
 # Check if current user is Administrator
-If (!( Check-IsAdmin) ) {
+if (!( Check-IsAdmin) ) {
     LogWrite "ERROR - The currently logged on user is not an Administrator!"
     break 
 }
 
 # Check current execution policy
-If ((Get-ExecutionPolicy) -ne "Unrestricted" ) {
+if ((Get-ExecutionPolicy) -ne "Unrestricted" ) {
     LogWrite "ERROR - The Execution Policies on the current session prevents this script from working!"
     break 
 }
@@ -61,7 +60,7 @@ $step = $step +1;
 LogWrite "$step. Loading CSV and installing IIS features"
 
 # Check if features file is present
-if(!(Test-path ".\IIS_features.csv")) { 
+if(!(Test-Path ".\IIS_features.csv")) { 
     LogWrite "ERROR - IIS feature list not found! Please copy it to root folder."  
     break
 } 
@@ -110,15 +109,15 @@ if ($SQLswitch -eq "Y"){
 
     $step = $step +1; 
     LogWrite "$step. Installing SQL Server Express"
-    $SQLexpress_Setupfile = "SQLEXPR_x64_ENU.exe"
+    $SQLexpress_Setupfile = "SQLEXPR_x64_*.exe"
 
     # Prompt user input
     $SQLpassword = Read-Host -prompt "Insert SQL system administrator password: "
-    # Check password complexity
+        # Check password complexity
     $SQLinstance = Read-Host -prompt "Insert SQL Server instance name: "
 
     # Check if setup file is present
-    if(!(Test-path ".\$Sqlexpress_Setupfile")) { 
+    if(!(Test-Path ".\$Sqlexpress_Setupfile")) { 
         LogWrite "ERROR - Sqlexpress setup file not found! Please copy it to root folder."  
         break
     } 
@@ -128,7 +127,7 @@ if ($SQLswitch -eq "Y"){
         continue
     } else {
         LogWrite "ERROR - Service $SQLinstance is already installed:"
-        get-service -displayname "*$($SQLinstance)*" | LogWrite
+        Get-Service -displayname "*$($SQLinstance)*" | LogWrite
         break
     }
 
@@ -163,7 +162,7 @@ LogWrite "$step. Install MRT Application Suite"
 
 # Check if setup file is present
 $mrtsetupfile = (Get-Item mrt*.exe)
-if(!(Test-path ".\$mrtsetupfile")) { 
+if(!(Test-Path ".\$mrtsetupfile")) { 
     LogWrite "ERROR - MRT setup file not found! Please copy it to root folder."  
     break
 } 
@@ -192,7 +191,7 @@ $step = $step +1;
 LogWrite "$step. Activating product"
 
 # Open GeneraABL
-cd C:\MPW\GeneraAbl\
+Set-Location C:\MPW\GeneraAbl\
 Start-process ./GeneraAbl.exe 
 # Check virtual or physical server
 if ($(get-wmiobject win32_computersystem).model -match "virtual,*"){
@@ -206,10 +205,12 @@ $wshshell.sendkeys($keys)
 
 # Open MicronStart and wait for input
 Start-sleep -Seconds 5
-cd C:\MPW\MicronStart
+Set-Location C:\MPW\MicronStart
 Start-process ./mStart.exe -Wait
 
-Write-Host "To be continued..."
+    # Check if Connection Strings have been updated
+
+
 
 <# ------------------------------------ #>
 
