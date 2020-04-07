@@ -29,9 +29,9 @@ function LogWrite {
     $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
     Add-content $LogPath -value "$datetime $logstring "
     Write-Host $logstring
- }
+}
 
- # Check if program installation was successful
+# Check if program installation was successful
 function CheckProgramInstallation ($ProgramName,$InstallProcess) {
     $Program = Get-CimInstance -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%$($ProgramName)%'"
     Start-sleep -s 10
@@ -42,7 +42,7 @@ function CheckProgramInstallation ($ProgramName,$InstallProcess) {
         return "ERROR - Something went wrong installing $($ProgramName.Name), please check install log"
         break
     }  
- }
+}
 
 <# ------------------------------------ #>
 
@@ -357,6 +357,9 @@ $InitialConfigurationQuery = "
 # Apply query
 Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Query $InitialConfigurationQuery
 
+<# ------------------------------------ #>
+
+# Insert final DSC checks here
 
 <# ------------------------------------ #>
 
