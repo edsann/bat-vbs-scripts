@@ -10,8 +10,8 @@
     -
 .INPUT
     CSV file with required IIS features in the same directory
-    SQLEXPR_x64_ENU.exe in same directory (English only for now)
-    SSMS-SETUP-ENU.exe in same directory (English only for now)
+    SQLEXPR_x64_ENU.exe in same directory (if needed) (English only for now)
+    SSMS-SETUP-ENU.exe in same directory (if needed) (English only for now)
     MRTxxx.exe in same directory
 .NEXT
     .Insert CheckProgramInstallation function
@@ -64,6 +64,8 @@ if (!($InstalledFramework).Release -ge $MinimumFramework){
     break 
 }
 
+Write-Log ""
+
 <# ------------------------------------ #>
 
 $step++
@@ -110,6 +112,8 @@ Invoke-Command -ScriptBlock { iisreset} -Verbose
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
 Write-Log "IIS $IISVersion successfully installed!"
 
+Write-Log ""
+
 <# ------------------------------------ #>
 
 # Do you want to install SQLExpr ?
@@ -133,14 +137,14 @@ if ($SQLswitch -eq "Y"){
     } 
     
     # Check if an instance with the same name already exists
-    if (!(Get-Service -displayname "*$($SQLinstance)*")){
-        continue
-    } else {
+    if ((Get-Service -displayname "*$($SQLinstance)*")){
         Write-Log "ERROR - Service $SQLinstance is already installed:"
         Get-Service -displayname "*$($SQLinstance)*"
         break
     }
     
+    Write-log "Starting installation: this may take a while..."   
+    Write-Log "A SQL_install.log will be created in the current path to track SQL Server installation."
     # Silently extract setup media file
     Rename-Item $SQLexpress_Setupfile -NewName sql_install.exe
     ./sql_install.exe /q /x:".\SQL_Install"
@@ -168,7 +172,6 @@ if ($SSMSSwitch -eq "Y"){
 
     $step++
     Write-Log "$step. Installing SQL Server Management Studio"
-    Write-Log "This may take a while... ..."
     $SSMS_Setupfile = (Get-Item SSMS*.exe).Name
 
     # Check if setup file is present
@@ -177,6 +180,8 @@ if ($SSMSSwitch -eq "Y"){
         break
     } 
 
+    Write-log "Starting installation: this may take a while..."
+    Write-Log "A SSMS_install.log will be created in the current path to track the SSMS installation."
     # Move SSMS setup file into SQL install folder
     Rename-Item $SSMS_Setupfile -NewName SSMS_setup.exe
     if (!(Get-Item .\SQL_install)){
@@ -206,6 +211,8 @@ if ($SSMSSwitch -eq "Y"){
 } else { 
     Write-Log "SQL Server Management Studio not needed. Proceeding with the following steps..."
 }
+
+Write-Log ""
 
 <# ------------------------------------ #>
 
@@ -239,6 +246,8 @@ if (($InstallProcess.ExitCode -eq '0') -and ($wmi_check -eq $True )) {
     break
 }  
 
+Write-Log ""
+
 <# ------------------------------------ #>
 
 $step++
@@ -263,6 +272,8 @@ Set-Location C:\MPW\MicronStart
 Start-process ./mStart.exe -Wait
 
     # Check if Connection Strings have been updated before continuing
+
+Write-Log ""
 
 <# ------------------------------------ #>
 
@@ -323,6 +334,8 @@ else {
 	Write-Log "Application $WebSiteName$ApplicationName successfully assigned to Application pool $ApplicationPoolName"
 }    
 
+Write-Log ""
+
 <# ------------------------------------ #>
 
 $step++ 
@@ -345,11 +358,20 @@ $DBInitialCatalog = [regex]::Match($ConnectionString, 'Initial Catalog=([^;]+)')
 $DBUserId = [regex]::Match($ConnectionString, 'User ID=([^;]+)').Groups[1].Value
 $DBPassword = [regex]::Match($ConnectionString, 'Password=([^;]+)').Groups[1].Value
 
-# Import SQL PowerShell module
-Get-Command -Module SQLPS
+# Install NuGet package provider
+Install-PackageProvider -Name NuGet -Force
+# Install SQL Server PowerShell module
+Install-Module -Name SqlServer -Force
+if (!(Get-InstalledModule -Name SqlServer)){
+    Write-Log "ERROR - An error occurred downloading the Sql Server Powershell module, please give it a look."
+    break
+}
 
 # Extract SQL Server version as connection test
-Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Query "SELECT @@VERSION"
+Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Username $DBUserID -Password $DBPassword -Query "SELECT @@VERSION"
+
+# Check if connection test was successful
+
 
 # Configuration query 
 # (this will be outsourced to an external file)
@@ -369,7 +391,11 @@ $InitialConfigurationQuery = "
 "
 
 # Apply query
-Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Query $InitialConfigurationQuery
+Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Username $DBUserID -Password $DBPassword -Query $InitialConfigurationQuery
+
+# Check if query was correctly applied
+
+Write-Log ""
 
 <# ------------------------------------ #>
 
@@ -377,4 +403,3 @@ Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Query $
 
 <# ------------------------------------ #>
 
-Set-ExecutionPolicy -ExecutionPolicy Restricted
