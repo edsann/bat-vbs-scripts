@@ -14,7 +14,7 @@
     SSMS-SETUP-ENU.exe in same directory (English only for now)
     MRTxxx.exe in same directory
 .NEXT
-    .Clean up IIS installation function
+    .Insert CheckProgramInstallation function
     .Add initial installation switches
     ..Add speed-test
     ..Add DSC test at the end of the script
@@ -57,15 +57,14 @@ $OSDetails = Get-ComputerInfo
 $OSType = $OSDetails.WindowsInstallationType
 
 # Check .NET Framework version 
-# (379893 corresponds to .NET Framework 4.5.2)
-$MinimumFramework = '379893'
+$MinimumFramework = '379893' # corresponds to .NET Framework 4.5.2
 $InstalledFramework = Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"
 if (!($InstalledFramework).Release -ge $MinimumFramework){
     Write-Log "ERROR - The installed .NET Framework $($InstalledFramework.Version) does not meet the minimum requirements."
     break 
 }
 
-
+<# ------------------------------------ #>
 
 $step++
 Write-Log "$step. Loading CSV and installing IIS features"
