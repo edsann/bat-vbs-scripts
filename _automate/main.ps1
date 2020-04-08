@@ -23,25 +23,12 @@
 Set-Executionpolicy -ExecutionPolicy Unrestricted -Force -ErrorAction SilentlyContinue 
 
 # Write Log and write host
-function LogWrite {
+function Write-Log {
     param ([string]$logstring)
     $LogPath = ".\install.log"
     $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
     Add-content $LogPath -value "$datetime $logstring "
     Write-Host $logstring
-}
-
-# Check if program installation was successful
-function CheckProgramInstallation ($ProgramName,$InstallProcess) {
-    $Program = Get-CimInstance -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%$($ProgramName)%'"
-    Start-sleep -s 10
-    $wmi_check = $Program -ne $null
-    if (($InstallProcess.breakCode -eq '0') -and ($wmi_check -eq $True )) {
-        return "$($ProgramName.Name) $($SSMSProgram.Version) successfully installed!"
-    } Else {
-        return "ERROR - Something went wrong installing $($ProgramName.Name), please check install log"
-        break
-    }  
 }
 
 <# ------------------------------------ #>
@@ -55,13 +42,13 @@ function Check-IsAdmin {
     $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator) 
 }
 if (!( Check-IsAdmin) ) {
-    LogWrite "ERROR - The currently logged on user is not an Administrator!"
+    Write-Log "ERROR - The currently logged on user is not an Administrator!"
     break 
 }
 
 # Check current execution policy
 if ((Get-ExecutionPolicy) -ne "Unrestricted" ) {
-    LogWrite "ERROR - The Execution Policies on the current session prevents this script from working!"
+    Write-Log "ERROR - The Execution Policies on the current session prevents this script from working!"
     break 
 }
 
@@ -69,12 +56,23 @@ if ((Get-ExecutionPolicy) -ne "Unrestricted" ) {
 $OSDetails = Get-ComputerInfo
 $OSType = $OSDetails.WindowsInstallationType
 
-$step = $step +1; 
-LogWrite "$step. Loading CSV and installing IIS features"
+# Check .NET Framework version 
+# (379893 corresponds to .NET Framework 4.5.2)
+$MinimumFramework = '379893'
+$InstalledFramework = Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"
+if (!($InstalledFramework).Release -ge $MinimumFramework){
+    Write-Log "ERROR - The installed .NET Framework $($InstalledFramework.Version) does not meet the minimum requirements."
+    break 
+}
+
+
+
+$step++
+Write-Log "$step. Loading CSV and installing IIS features"
 
 # Check if features file is present
 if(!(Test-Path ".\IIS_features.csv")) { 
-    LogWrite "ERROR - IIS feature list not found! Please copy it to root folder."  
+    Write-Log "ERROR - IIS feature list not found! Please copy it to root folder."  
     break
 } 
 
@@ -88,9 +86,9 @@ if ($OSType -eq "Client"){
         # The -all switch automatically installs all the parent features
         Enable-WindowsOptionalFeature -All -Online -FeatureName $feature | Out-Null 
         if ((Get-WindowsOptionalFeature -Online -FeatureName $feature).State -eq "Enabled"){
-            LogWrite "Windows Feature $feature successfully installed"
+            Write-Log "Windows Feature $feature successfully installed"
         } else {
-            LogWrite "ERROR - Something went wrong installing $feature, please check again!"
+            Write-Log "ERROR - Something went wrong installing $feature, please check again!"
 	        break
         }
     }
@@ -100,9 +98,9 @@ elseif ($OSType -eq "Server"){
     foreach ($feature in $IISFeaturesList){
         Install-WindowsFeature -Name $feature  | Out-Null
         if ((Get-WindowsFeature -name $feature).Installed -eq $True){
-            LogWrite "Windows Feature $feature successfully installed"
+            Write-Log "Windows Feature $feature successfully installed"
         } else {
-            LogWrite "ERROR - Something went wrong installing $feature, please check again!"
+            Write-Log "ERROR - Something went wrong installing $feature, please check again!"
 	        break
         }
     }
@@ -111,7 +109,7 @@ elseif ($OSType -eq "Server"){
 # Reset IIS
 Invoke-Command -ScriptBlock { iisreset} -Verbose
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
-LogWrite "IIS $IISVersion successfully installed!"
+Write-Log "IIS $IISVersion successfully installed!"
 
 <# ------------------------------------ #>
 
@@ -120,8 +118,8 @@ $SQLswitch = Read-Host -prompt "Do you want to install SQLExpr ? [Y] Yes [N] No"
 
 if ($SQLswitch -eq "Y"){
 
-    $step = $step +1; 
-    LogWrite "$step. Installing SQL Server Express"
+    $step++
+    Write-Log "$step. Installing SQL Server Express"
     $SQLexpress_Setupfile = (Get-Item SQLEXPR_x64_*.exe).Name
     
     # Prompt user input
@@ -131,7 +129,7 @@ if ($SQLswitch -eq "Y"){
     
     # Check if setup file is present
     if(!(Test-Path ".\$Sqlexpress_Setupfile")) { 
-        LogWrite "ERROR - Sqlexpress setup file not found! Please copy it to root folder."  
+        Write-Log "ERROR - Sqlexpress setup file not found! Please copy it to root folder."  
         break
     } 
     
@@ -139,7 +137,7 @@ if ($SQLswitch -eq "Y"){
     if (!(Get-Service -displayname "*$($SQLinstance)*")){
         continue
     } else {
-        LogWrite "ERROR - Service $SQLinstance is already installed:"
+        Write-Log "ERROR - Service $SQLinstance is already installed:"
         Get-Service -displayname "*$($SQLinstance)*"
         break
     }
@@ -154,14 +152,14 @@ if ($SQLswitch -eq "Y"){
     
     # Check if installation was successful by verifying the instance in the service name
     if (Get-Service -displayname "*$($SQLinstance)*" -ErrorAction SilentlyContinue){
-       LogWrite "SQL instance $SQLinstance successfully installed"
+       Write-Log "SQL instance $SQLinstance successfully installed"
     } else {
-       LogWrite "ERROR - Something went wrong installing SQL instance $SQLinstance, please check SQL installation log"
+       Write-Log "ERROR - Something went wrong installing SQL instance $SQLinstance, please check SQL installation log"
        break
     }
     
 } else { 
-    LogWrite "SQL Server installation skipped. Proceeding with the following steps..."
+    Write-Log "SQL Server installation skipped. Proceeding with the following steps..."
 }
 
 # Do you want to install SSMS?
@@ -169,14 +167,14 @@ $SSMSSwitch = Read-Host -prompt "Do you want to install SSMS with default parame
 
 if ($SSMSSwitch -eq "Y"){
 
-    $step = $step +1; 
-    LogWrite "$step. Installing SQL Server Management Studio"
-    LogWrite "This may take a while... ..."
+    $step++
+    Write-Log "$step. Installing SQL Server Management Studio"
+    Write-Log "This may take a while... ..."
     $SSMS_Setupfile = (Get-Item SSMS*.exe).Name
 
     # Check if setup file is present
     if(!(Test-Path ".\$SSMS_Setupfile")) { 
-        LogWrite "ERROR - SSMS setup file not found! Please copy it to root folder."  
+        Write-Log "ERROR - SSMS setup file not found! Please copy it to root folder."  
         break
     } 
 
@@ -195,22 +193,30 @@ if ($SSMSSwitch -eq "Y"){
     Start-sleep -s 30
 
     # Check if install was good
-    $SSMSresult = CheckProgramInstallation ("Management Studio",$SSMSInstallProcess)
-    LogWrite $SSMSresult
+    $Program = Get-CimInstance -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%SQL Server Management Studio%'"
+    Start-sleep -s 10
+    $wmi_check = $Program -ne $null
+    if (($InstallProcess.ExitCode -eq '0') -and ($wmi_check -eq $True )) {
+        Write-Log "$($Program.Name) $($Program.Version) successfully installed!"
+        continue
+    } else {
+        Write-Log "ERROR - Something went wrong installing $($Program.Name), please check install log"
+        break
+    }  
 
 } else { 
-    LogWrite "SQL Server Management Studio not needed. Proceeding with the following steps..."
+    Write-Log "SQL Server Management Studio not needed. Proceeding with the following steps..."
 }
 
 <# ------------------------------------ #>
 
-$step = $step+1; 
-LogWrite "$step. Install MRT Application Suite"
+$step++ 
+Write-Log "$step. Install MRT Application Suite"
 
 # Check if setup file is present
 $mrtsetupfile = (Get-Item mrt*.exe).Name
-if(!(Test-Path ".\$mrtsetupfile")) { 
-    LogWrite "ERROR - MRT setup file not found! Please copy it to root folder."  
+if(!(Test-Path ".\$mrtsetupfile")) {
+    Write-Log "ERROR - MRT setup file not found! Please copy it to root folder."  
     break
 } 
 
@@ -219,16 +225,25 @@ Rename-Item $mrtsetupfile -NewName mrt_install.exe
 .\mrt_install.exe /s /x /b"$PWD" /v"/qn"
 Start-sleep -s 20
 # Silently install msi (cmd) and create error log
-$msiArguments = '/qn','/i','"Micronpass Application Suite.msi"','/l*e ".\msi.log"'
+$msiArguments = '/qn','/i','"Micronpass Application Suite.msi"','/l*e ".\msi_install.log"'
 $InstallProcess = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
+Start-sleep -s 20
 # Check if installation was successful
-$MrtResult = CheckProgramInstallation ("Micronpass Application Suite",$InstallProcess)
-LogWrite $MrtResult
+$Program = Get-CimInstance -Query "SELECT * FROM Win32_Product WHERE Name LIKE '%Micronpass Application Suite%'"
+Start-sleep -s 10
+$wmi_check = $Program -ne $null
+if (($InstallProcess.ExitCode -eq '0') -and ($wmi_check -eq $True )) {
+    Write-Log "$($Program.Name) $($Program.Version) successfully installed!"
+    continue
+} else {
+    Write-Log "ERROR - Something went wrong installing $($Program.Name), please check install log"
+    break
+}  
 
 <# ------------------------------------ #>
 
-$step = $step +1; 
-LogWrite "$step. Activating product"
+$step++
+Write-Log "$step. Activating product"
 
 # Open GeneraABL
 Set-Location C:\MPW\GeneraAbl\
@@ -252,14 +267,14 @@ Start-process ./mStart.exe -Wait
 
 <# ------------------------------------ #>
 
-$step = $step +1; 
-LogWrite "$step. Configuring IIS application pool"
+$step++
+Write-Log "$step. Configuring IIS application pool"
 
 # Global variables
 $ApplicationPoolName = "MICRONTEL_Accessi"
 $WebSiteName = "Default Web Site"
 $ApplicationName = "/mpassw"
-LogWrite "Starting configuration of $WebSiteName$ApplicationName in application pool $ApplicationPoolName"
+Write-Log "Starting configuration of $WebSiteName$ApplicationName in application pool $ApplicationPoolName"
 
 # Import IIS admin modules
 $IISShiftVersion = '10'
@@ -279,8 +294,8 @@ if ($IISVersion.Substring(0,2) -ge $IISShiftVersion) {
 	$pool.ProcessModel.IdentityType = "ApplicationPoolIdentity"
 	$pool.ProcessModel.idleTimeout = "08:00:00"
 	$manager.CommitChanges()
-	LogWrite "Application pool $ApplicationPoolName successfully created"
-	} else {LogWrite "Application pool $ApplicationPoolName already exists, please choose a different name"}
+	Write-Log "Application pool $ApplicationPoolName successfully created"
+	} else {Write-Log "Application pool $ApplicationPoolName already exists, please choose a different name"}
 } 
 # On WebAdministration (IIS 7.5)
 else {
@@ -291,8 +306,8 @@ else {
 	$appPool.enable32BitAppOnWin64 = 1
 	$appPool.processModel.idleTimeout = "08:00:00"
 	$appPool | Set-Item
-	LogWrite "Application Pool $ApplicationPoolName successfully created"
-	} else {LogWrite "Application Pool $ApplicationPoolName already exists, please choose a different name"}
+	Write-Log "Application Pool $ApplicationPoolName successfully created"
+	} else {Write-Log "Application Pool $ApplicationPoolName already exists, please choose a different name"}
 }
 
 # Assign the web application mpassw to the application pool
@@ -301,18 +316,18 @@ if ($IISVersion.Substring(0,2) -ge $IISShiftVersion) {
 	$website = $manager.Sites["$WebSiteName"]
 	$website.Applications["$ApplicationName"].ApplicationPoolName = "$ApplicationPoolName"
 	$manager.CommitChanges()
-	LogWrite "Application $WebSiteName$ApplicationName successfully assigned to Application pool $ApplicationPoolName"
+	Write-Log "Application $WebSiteName$ApplicationName successfully assigned to Application pool $ApplicationPoolName"
 }
 # Using WebAdministration (IIS 7.5)
 else {
 	Set-ItemProperty -Path "IIS:\Sites\$WebSiteName\$ApplicationName" -name "applicationPool" -value "$ApplicationPoolName"
-	LogWrite "Application $WebSiteName$ApplicationName successfully assigned to Application pool $ApplicationPoolName"
+	Write-Log "Application $WebSiteName$ApplicationName successfully assigned to Application pool $ApplicationPoolName"
 }    
 
 <# ------------------------------------ #>
 
-$step = $step +1; 
-LogWrite "$step. Configuring application"
+$step++ 
+Write-Log "$step. Configuring application"
 
 # Translated XML config 
 $ConfigFile = "C:\MPW\MicronConfig\config.exe.config"
