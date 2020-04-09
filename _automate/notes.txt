@@ -1,11 +1,8 @@
-[] Preliminary checks
-	[OK] Am I an administrator user?
-	[OK] Are the execution policies correct?
-	[] Some other checks?
 [OK] Install IIS
 	[OK] Check if IIS is already installed --> Not helpful, installation is going anyway
 	[OK] Check if IIS has correctly installed
-[] Install Crystal Reports
+[] Install Crystal Reports 32-bit
+[] Install Crystal Reports 64-bit
 [OK] Install MRT
 	[OK] Extract MSI from EXE
 	[OK] Run it with default values
@@ -13,14 +10,24 @@
 [OK] Activate MRT (MicronStart)
 	[OK] Run GeneraABL and create ABL code
 	[OK] Wait for input from user, then continue when closed
-[] Configure IIS
+[OK] Configure IIS
 	[] Check if web applications are there
-	[] Create application pool
-	[] Configure application Pool
-	[] Move web apps into the new application pool
-[] Initialize MRT
-	[] Read connection strings
-	[] Update T05COMFLAGS for GDPR
-	[] Create Internal company UTILITIES
-	[] Create ref.empl. 
-	[] Set default ref.empl. in admin user
+	[OK] Create application pool
+	[OK] Configure application Pool
+	[OK] Move web apps into the new application pool
+[OK] Initialize MRT
+	[] Install SqlServer PowerShell module
+		[] if PowerShell Gallery is reachable, perform an online installation
+			[] Install NuGet Package Manager
+			[] Install SQLServer package
+		[] else, perform an offline installation
+			[] Create a local PowerShell repository
+			[] Install NuGet Package Manager
+			[] Install SQLServer package
+	[OK] Read connection strings
+		[] Test connection to server
+	[OK] Run initializing query
+		[OK] Update T05COMFLAGS for GDPR
+		[OK] Create Internal company UTILITIES
+		[OK] Create ref.empl. 
+		[OK] Set default ref.empl. in admin user

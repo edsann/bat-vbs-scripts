@@ -7,7 +7,8 @@
     Configure IIS Application Pool
     Configure MPW initial parameters by using external query
 .TESTED ON
-    -
+    Windows Server 2019 Datacenter
+    PowerShell 5.0
 .INPUT
     CSV file with required IIS features in the same directory
     SQLEXPR_x64_ENU.exe in same directory (if needed) (English only for now)
@@ -27,13 +28,17 @@ function Write-Log {
     param ([string]$logstring)
     $LogPath = ".\install.log"
     $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
-    Add-content $LogPath -value "$datetime $logstring "
+    # Writes date-time and string
+    Add-content $LogPath -value "$datetime $logstring"
+    # Print to console the
     Write-Host $logstring
 }
+Write-Log "Welcome to the MRT installation!"
 
 <# ------------------------------------ #>
 
-$step = 1
+Write-Log ""; $step = 1
+Write-Log "$step. Checking OS information"
 
 # Check if current user is Administrator
 function Check-IsAdmin { 
@@ -64,11 +69,9 @@ if (!($InstalledFramework).Release -ge $MinimumFramework){
     break 
 }
 
-Write-Log ""
-
 <# ------------------------------------ #>
 
-$step++
+Write-Log ""; $step++ 
 Write-Log "$step. Loading CSV and installing IIS features"
 
 # Check if features file is present
@@ -108,20 +111,19 @@ elseif ($OSType -eq "Server"){
 }
 
 # Reset IIS
-Invoke-Command -ScriptBlock { iisreset} -Verbose
+Invoke-Command -ScriptBlock {iisreset} | Out-Null
 $IISVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo(“C:\Windows\system32\notepad.exe”).FileVersion
 Write-Log "IIS $IISVersion successfully installed!"
-
-Write-Log ""
 
 <# ------------------------------------ #>
 
 # Do you want to install SQLExpr ?
+Write-Log ""
 $SQLswitch = Read-Host -prompt "Do you want to install SQLExpr ? [Y] Yes [N] No"
 
 if ($SQLswitch -eq "Y"){
 
-    $step++
+    Write-Log ""; $step++ 
     Write-Log "$step. Installing SQL Server Express"
     $SQLexpress_Setupfile = (Get-Item SQLEXPR_x64_*.exe).Name
     
@@ -166,11 +168,12 @@ if ($SQLswitch -eq "Y"){
 }
 
 # Do you want to install SSMS?
+Write-Log "";
 $SSMSSwitch = Read-Host -prompt "Do you want to install SSMS with default parameters ? [Y] Yes [N] No"
 
 if ($SSMSSwitch -eq "Y"){
 
-    $step++
+    Write-Log ""; $step++ 
     Write-Log "$step. Installing SQL Server Management Studio"
     $SSMS_Setupfile = (Get-Item SSMS*.exe).Name
 
@@ -186,9 +189,8 @@ if ($SSMSSwitch -eq "Y"){
     Rename-Item $SSMS_Setupfile -NewName SSMS_setup.exe
     if (!(Get-Item .\SQL_install)){
         New-Item -ItemType Directory -Path .\SQL_install
-    } else {
-        continue
     }
+
     Move-Item -Path .\SSMS_setup.exe -Destination .\SQL_install\SSMS_Setup.exe
     # Silently installing SSMS with no restart, create SSMS_install.log
     # ./SQL_install/SSMS_setup.exe /INSTALL /QUIET /NORESTART /LOG SSMS_install.log
@@ -202,7 +204,6 @@ if ($SSMSSwitch -eq "Y"){
     $wmi_check = $Program -ne $null
     if (($InstallProcess.ExitCode -eq '0') -and ($wmi_check -eq $True )) {
         Write-Log "$($Program.Name) $($Program.Version) successfully installed!"
-        continue
     } else {
         Write-Log "ERROR - Something went wrong installing $($Program.Name), please check install log"
         break
@@ -212,11 +213,9 @@ if ($SSMSSwitch -eq "Y"){
     Write-Log "SQL Server Management Studio not needed. Proceeding with the following steps..."
 }
 
-Write-Log ""
-
 <# ------------------------------------ #>
 
-$step++ 
+Write-Log ""; $step++ 
 Write-Log "$step. Install MRT Application Suite"
 
 # Check if setup file is present
@@ -240,17 +239,14 @@ Start-sleep -s 10
 $wmi_check = $Program -ne $null
 if (($InstallProcess.ExitCode -eq '0') -and ($wmi_check -eq $True )) {
     Write-Log "$($Program.Name) $($Program.Version) successfully installed!"
-    continue
 } else {
     Write-Log "ERROR - Something went wrong installing $($Program.Name), please check install log"
     break
 }  
 
-Write-Log ""
-
 <# ------------------------------------ #>
 
-$step++
+Write-Log ""; $step++ 
 Write-Log "$step. Activating product"
 
 # Open GeneraABL
@@ -273,11 +269,10 @@ Start-process ./mStart.exe -Wait
 
     # Check if Connection Strings have been updated before continuing
 
-Write-Log ""
 
 <# ------------------------------------ #>
 
-$step++
+Write-Log ""; $step++ 
 Write-Log "$step. Configuring IIS application pool"
 
 # Global variables
@@ -334,12 +329,12 @@ else {
 	Write-Log "Application $WebSiteName$ApplicationName successfully assigned to Application pool $ApplicationPoolName"
 }    
 
-Write-Log ""
+
 
 <# ------------------------------------ #>
 
-$step++ 
-Write-Log "$step. Configuring application"
+Write-Log ""; $step++ 
+Write-Log "$step. Initialize MRT"
 
 # Translated XML config 
 $ConfigFile = "C:\MPW\MicronConfig\config.exe.config"
@@ -387,7 +382,7 @@ $InitialConfigurationQuery = "
     /* Create reference employee */
     INSERT INTO T26COMDIPENDENTI VALUES (N'00000001',N'_DIP.RIF', N'_DIP.RIF', N'', N'', N'', N'', N'0', N'', N'INSTALLATORE', N'20000101000000', N'', N'', N'', N'', N'20000101', N'', N'0', N'', N'UTIL', N'M', N'', N'1', N'20000101000000', N'99991231235959', N'', N'', N'', N'', N'', N'', N'', N'', N'', N'', N'')
     /* Assign ref.empl. to admin user */
-    INSERT INTO T21COMUTENTI (T21DEFDIPRIFEST,T21DEFAZINTEST,T21DEFDIPRIFVIS,T21DEFAZINTVIS) VALUES ('00000001','UTIL','00000001','UTIL')
+    INSERT INTO T21COMUTENTI (T21DEFDIPRIFEST,T21DEFAZINTEST,T21DEFDIPRIFVIS,T21DEFAZINTVIS) VALUES ('00000001','UTIL','00000001','UTIL') WHERE T21UTENTE = 'admin'
 "
 
 # Apply query
