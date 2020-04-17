@@ -22,4 +22,5 @@ Function Now-Advanced {
     }
 }
 
-# Example: Import-CSV "FILEPATH.csv" | Now-Advanced
+# Example on CSV file containing the field EmployeeID:
+#Import-CSV "FILEPATH.csv" | Now-Advanced
