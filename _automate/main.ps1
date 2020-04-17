@@ -14,6 +14,8 @@
     SQLEXPR_x64_ENU.exe in same directory (if needed) (English only for now)
     SSMS-SETUP-ENU.exe in same directory (if needed) (English only for now)
     MRTxxx.exe in same directory
+.USEFUL LINKS
+    https://jrsoftware.org/ishelp/index.php?topic=setupcmdline - Setup command line arguments
 .NEXT
     .Insert CheckProgramInstallation function
     .Add initial installation switches
@@ -24,9 +26,10 @@
 Set-Executionpolicy -ExecutionPolicy Unrestricted -Force -ErrorAction SilentlyContinue 
 
 # Write Log and write host
+New-Item -ItemType Directory -Path .\LOGS
 function Write-Log {
     param ([string]$logstring)
-    $LogPath = ".\install.log"
+    $LogPath = ".\LOGS\_main_install.log"
     $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
     # Writes date-time and string
     Add-content $LogPath -value "$datetime $logstring"
@@ -89,9 +92,7 @@ if ($OSType -eq "Client"){
     foreach ($feature in $IISFeaturesList){
         # The -all switch automatically installs all the parent features
         Enable-WindowsOptionalFeature -All -Online -FeatureName $feature | Out-Null 
-        if ((Get-WindowsOptionalFeature -Online -FeatureName $feature).State -eq "Enabled"){
-            Write-Log "Windows Feature $feature successfully installed"
-        } else {
+        if (!(Get-WindowsOptionalFeature -Online -FeatureName $feature).State -eq "Enabled"){
             Write-Log "ERROR - Something went wrong installing $feature, please check again!"
 	        break
         }
@@ -101,9 +102,7 @@ if ($OSType -eq "Client"){
 elseif ($OSType -eq "Server"){
     foreach ($feature in $IISFeaturesList){
         Install-WindowsFeature -Name $feature  | Out-Null
-        if ((Get-WindowsFeature -name $feature).Installed -eq $True){
-            Write-Log "Windows Feature $feature successfully installed"
-        } else {
+        if (!(Get-WindowsFeature -name $feature).Installed -eq $True){
             Write-Log "ERROR - Something went wrong installing $feature, please check again!"
 	        break
         }
@@ -119,7 +118,7 @@ Write-Log "IIS $IISVersion successfully installed!"
 
 # Do you want to install SQLExpr ?
 Write-Log ""
-$SQLswitch = Read-Host -prompt "Do you want to install SQLExpr ? [Y] Yes [N] No"
+$SQLswitch = Read-Host -prompt "Do you want to install SQLEXPR ? [Y] Yes [N] No"
 
 if ($SQLswitch -eq "Y"){
 
@@ -140,19 +139,19 @@ if ($SQLswitch -eq "Y"){
     
     # Check if an instance with the same name already exists
     if ((Get-Service -displayname "*$($SQLinstance)*")){
-        Write-Log "ERROR - Service $SQLinstance is already installed:"
+        Write-Log "ERROR - Service $SQLinstance is already installed"
         Get-Service -displayname "*$($SQLinstance)*"
         break
     }
     
     Write-log "Starting installation: this may take a while..."   
-    Write-Log "A SQL_install.log will be created in the current path to track SQL Server installation."
+    Write-Log "A SQLEXPR install log will be created in the current path to track SQL Server installation."
     # Silently extract setup media file
     Rename-Item $SQLexpress_Setupfile -NewName sql_install.exe
-    ./sql_install.exe /q /x:".\SQL_Install"
+    ./sql_install.exe /q /x:".\SQL_Setup_files"
     Start-sleep -s 5
     # SQL Server Express installation
-    ./SQL_Install/setup.exe /Q /IACCEPTSQLSERVERLICENSETERMS /ACTION="install" /FEATURES=SQLengine /INSTANCENAME="$SQLinstance" /SECURITYMODE=SQL /SAPWD="$SQLpassword" /INDICATEPROGRESS | Out-file ".\SQLEXPR_install.log"
+    ./SQL_Setup_files/setup.exe /Q /IACCEPTSQLSERVERLICENSETERMS /ACTION="install" /FEATURES=SQLengine /INSTANCENAME="$SQLinstance" /SECURITYMODE=SQL /SAPWD="$SQLpassword" /INDICATEPROGRESS | Out-file ".\LOGS\SQLEXPR_install.log"
     Start-sleep -s 30
     
     # Check if installation was successful by verifying the instance in the service name
@@ -187,15 +186,15 @@ if ($SSMSSwitch -eq "Y"){
     Write-Log "A SSMS_install.log will be created in the current path to track the SSMS installation."
     # Move SSMS setup file into SQL install folder
     Rename-Item $SSMS_Setupfile -NewName SSMS_setup.exe
-    if (!(Get-Item .\SQL_install)){
-        New-Item -ItemType Directory -Path .\SQL_install
+    if (!(Get-Item .\SQL_Setup_files)){
+        New-Item -ItemType Directory -Path .\SQL_Setup_files
     }
 
-    Move-Item -Path .\SSMS_setup.exe -Destination .\SQL_install\SSMS_Setup.exe
+    Move-Item -Path .\SSMS_setup.exe -Destination .\SQL_Setup_files\SSMS_Setup.exe
     # Silently installing SSMS with no restart, create SSMS_install.log
-    # ./SQL_install/SSMS_setup.exe /INSTALL /QUIET /NORESTART /LOG SSMS_install.log
-    $SSMSArguments = '/INSTALL','/QUIET','/NORESTART','/LOG "SSMS_install.log"'
-    $SSMSInstallProcess = Start-Process -PassThru -Wait ./SQL_install/SSMS_Setup.exe -ArgumentList $SSMSArguments
+    # ./SQL_Setup_files/SSMS_setup.exe /INSTALL /QUIET /NORESTART /LOG SSMS_install.log
+    $SSMSArguments = '/INSTALL','/QUIET','/NORESTART','/LOG "LOGS/SSMS_install.log"'
+    $SSMSInstallProcess = Start-Process -PassThru -Wait ./SQL_Setup_files/SSMS_Setup.exe -ArgumentList $SSMSArguments
     Start-sleep -s 30
 
     # Check if install was good
@@ -209,8 +208,10 @@ if ($SSMSSwitch -eq "Y"){
         break
     }  
 
-} else { 
+} elseif ($SSMSSwitch -eq "N"){ 
     Write-Log "SQL Server Management Studio not needed. Proceeding with the following steps..."
+} else {
+    Write-Log "Answer not supported."
 }
 
 <# ------------------------------------ #>
@@ -230,7 +231,7 @@ Rename-Item $mrtsetupfile -NewName mrt_install.exe
 .\mrt_install.exe /s /x /b"$PWD" /v"/qn"
 Start-sleep -s 20
 # Silently install msi (cmd) and create error log
-$msiArguments = '/qn','/i','"Micronpass Application Suite.msi"','/l*e ".\msi_install.log"'
+$msiArguments = '/qn','/i','"Micronpass Application Suite.msi"','/l*e ".\LOGS\MSI_install.log"'
 $InstallProcess = Start-Process -PassThru -Wait msiexec -ArgumentList $msiArguments
 Start-sleep -s 20
 # Check if installation was successful
@@ -344,7 +345,7 @@ $ConfigXml = [xml] (Get-Content $ConfigFile) # Converts .config to .xml
 $DBEngine = $ConfigXml.SelectSingleNode('//add[@key="dbEngine"]').Value
 $MyDBEngine = "$("//add[@key='")$($DBEngine)$("Str']")"
 
-# Read value from SqlStr and print it on file
+# Read value from SqlStr
 $ConnectionString = $ConfigXml.SelectSingleNode($MyDBEngine).Value
 
 # Get Connection String parameters
@@ -353,20 +354,25 @@ $DBInitialCatalog = [regex]::Match($ConnectionString, 'Initial Catalog=([^;]+)')
 $DBUserId = [regex]::Match($ConnectionString, 'User ID=([^;]+)').Groups[1].Value
 $DBPassword = [regex]::Match($ConnectionString, 'Password=([^;]+)').Groups[1].Value
 
+<#
 # Install NuGet package provider
-Install-PackageProvider -Name NuGet -Force
+Install-PackageProvider -Name NuGet -Force | Out-Null
+if (!(Get-PackageProvider -Name NuGet)){
+    Write-Log "ERROR - An error occurred installing the NuGet Package Provider, please check."
+}
 # Install SQL Server PowerShell module
-Install-Module -Name SqlServer -Force
+Install-Module -Name SqlServer -Force | Out-Null
 if (!(Get-InstalledModule -Name SqlServer)){
-    Write-Log "ERROR - An error occurred downloading the Sql Server Powershell module, please give it a look."
+    Write-Log "ERROR - An error occurred downloading the Sql Server Powershell module, please check."
     break
 }
 
+#>
+
 # Extract SQL Server version as connection test
-Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Username $DBUserID -Password $DBPassword -Query "SELECT @@VERSION"
+# Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Username $DBUserID -Password $DBPassword -Query "SELECT @@VERSION"
 
 # Check if connection test was successful
-
 
 # Configuration query 
 # (this will be outsourced to an external file)
@@ -382,11 +388,11 @@ $InitialConfigurationQuery = "
     /* Create reference employee */
     INSERT INTO T26COMDIPENDENTI VALUES (N'00000001',N'_DIP.RIF', N'_DIP.RIF', N'', N'', N'', N'', N'0', N'', N'INSTALLATORE', N'20000101000000', N'', N'', N'', N'', N'20000101', N'', N'0', N'', N'UTIL', N'M', N'', N'1', N'20000101000000', N'99991231235959', N'', N'', N'', N'', N'', N'', N'', N'', N'', N'', N'')
     /* Assign ref.empl. to admin user */
-    INSERT INTO T21COMUTENTI (T21DEFDIPRIFEST,T21DEFAZINTEST,T21DEFDIPRIFVIS,T21DEFAZINTVIS) VALUES ('00000001','UTIL','00000001','UTIL') WHERE T21UTENTE = 'admin'
+    INSERT INTO T21COMUTENTI (T21DEFDIPRIFEST,T21DEFAZINTEST,T21DEFDIPRIFVIS,T21DEFAZINTVIS) VALUES ('00000001','UTIL','00000001','UTIL')
 "
 
 # Apply query
-Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Username $DBUserID -Password $DBPassword -Query $InitialConfigurationQuery
+sqlcmd -s $DBDataSource -d $DBInitialCatalog -U $DBUserID -P $DBPassword -q $InitialConfigurationQuery
 
 # Check if query was correctly applied
 

@@ -1,0 +1,5 @@
+# Installing Azure Data Studio
+
+$ADSSetupFile = "azuredatastudio*.exe"
+Rename-Item $ADSSetupFile -NewName ads_install.exe
+.\ads_install.exe /SP- /VerySilent /LOG="LOGS/ADS_install.log" /NORESTART /SUPPRESSMSGBOXES /LAUNCHPROGRAM=0 | Out-Null

@@ -1,6 +1,10 @@
 [OK] Install IIS
 	[OK] Check if IIS is already installed --> Not helpful, installation is going anyway
 	[OK] Check if IIS has correctly installed
+[] Install SQL Server and tools
+	[] Install SQL Server Express
+	[] Install Management tools
+		[] Install Azure Data Studio
 [] Install Crystal Reports 32-bit
 [] Install Crystal Reports 64-bit
 [OK] Install MRT
