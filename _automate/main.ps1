@@ -337,6 +337,14 @@ else {
 Write-Log ""; $step++ 
 Write-Log "$step. Initialize MRT"
 
+# Move module in the $Env:PATH folder
+$Here = (Get-Location).Path
+$There = "C:\windows\System32\WindowsPowerShell\v1.0\Modules"
+Copy-Item -Path "$Here\Modules\*" -Destination $There -Recurse
+
+# Import SqlServer module
+Import-Module -name SqlServer
+
 # Translated XML config 
 $ConfigFile = "C:\MPW\MicronConfig\config.exe.config"
 $ConfigXml = [xml] (Get-Content $ConfigFile) # Converts .config to .xml
@@ -354,25 +362,11 @@ $DBInitialCatalog = [regex]::Match($ConnectionString, 'Initial Catalog=([^;]+)')
 $DBUserId = [regex]::Match($ConnectionString, 'User ID=([^;]+)').Groups[1].Value
 $DBPassword = [regex]::Match($ConnectionString, 'Password=([^;]+)').Groups[1].Value
 
-<#
-# Install NuGet package provider
-Install-PackageProvider -Name NuGet -Force | Out-Null
-if (!(Get-PackageProvider -Name NuGet)){
-    Write-Log "ERROR - An error occurred installing the NuGet Package Provider, please check."
-}
-# Install SQL Server PowerShell module
-Install-Module -Name SqlServer -Force | Out-Null
-if (!(Get-InstalledModule -Name SqlServer)){
-    Write-Log "ERROR - An error occurred downloading the Sql Server Powershell module, please check."
-    break
-}
-
-#>
-
 # Extract SQL Server version as connection test
-# Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Username $DBUserID -Password $DBPassword -Query "SELECT @@VERSION"
+Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Username $DBUserID -Password $DBPassword -Query "SELECT @@VERSION"
 
 # Check if connection test was successful
+###########################################
 
 # Configuration query 
 # (this will be outsourced to an external file)
@@ -392,9 +386,10 @@ $InitialConfigurationQuery = "
 "
 
 # Apply query
-sqlcmd -s $DBDataSource -d $DBInitialCatalog -U $DBUserID -P $DBPassword -q $InitialConfigurationQuery
+Invoke-Sqlcmd -ServerInstance $DBDataSource -Database $DBInitialCatalog -Username $DBUserID -Password $DBPassword -Query $InitialConfigurationQuery
 
 # Check if query was correctly applied
+###########################################
 
 Write-Log ""
 
