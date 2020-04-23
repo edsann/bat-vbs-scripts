@@ -5,7 +5,7 @@
     Install SQL Server Express (if needed)
     Install SQL Server Management Studio (if needed)
     Configure IIS Application Pool
-    Configure MPW initial parameters by using external query
+    Configure MPW initial parameters by using external query (SqlServer PowerShell module required)
 .TESTED ON
     Windows Server 2019 Datacenter
     PowerShell 5.0
@@ -14,6 +14,7 @@
     SQLEXPR_x64_ENU.exe in same directory (if needed) (English only for now)
     SSMS-SETUP-ENU.exe in same directory (if needed) (English only for now)
     MRTxxx.exe in same directory
+    Modules/SqlServer PowerShell module
 .USEFUL LINKS
     https://jrsoftware.org/ishelp/index.php?topic=setupcmdline - Setup command line arguments
 .NEXT
@@ -23,13 +24,14 @@
     ..Add DSC test at the end of the script
 #>
 
+$InstallLocation = (Get-Location).Path
 Set-Executionpolicy -ExecutionPolicy Unrestricted -Force -ErrorAction SilentlyContinue 
 
 # Write Log and write host
-New-Item -ItemType Directory -Path .\LOGS
+New-Item -ItemType Directory -Path .\LOGS | Out-Null
 function Write-Log {
     param ([string]$logstring)
-    $LogPath = ".\LOGS\_main_install.log"
+    $LogPath = "$InstallLocation\LOGS\_main_install.log"
     $datetime = Get-Date -format "[dd-MM-yyyy HH:mm:ss]"
     # Writes date-time and string
     Add-content $LogPath -value "$datetime $logstring"
@@ -124,12 +126,12 @@ if ($SQLswitch -eq "Y"){
 
     Write-Log ""; $step++ 
     Write-Log "$step. Installing SQL Server Express"
-    $SQLexpress_Setupfile = (Get-Item SQLEXPR_x64_*.exe).Name
+    $SQLexpress_Setupfile = (Get-Item SQLEXPR*.exe).Name
     
     # Prompt user input
-    $SQLpassword = Read-Host -prompt "Insert SQL system administrator password: "
+    $SQLpassword = Read-Host -prompt "Insert SQL system administrator password [complexity restrictions are applied]: "
         # Check password complexity
-    $SQLinstance = Read-Host -prompt "Insert SQL Server instance name: "
+    $SQLinstance = "MICRONTEL_SQLEXPRESS"
     
     # Check if setup file is present
     if(!(Test-Path ".\$Sqlexpress_Setupfile")) { 
@@ -338,9 +340,13 @@ Write-Log ""; $step++
 Write-Log "$step. Initialize MRT"
 
 # Move module in the $Env:PATH folder
-$Here = (Get-Location).Path
-$There = "C:\windows\System32\WindowsPowerShell\v1.0\Modules"
-Copy-Item -Path "$Here\Modules\*" -Destination $There -Recurse
+Set-Location $InstallLocation
+$ModulesFolder = "C:\windows\System32\WindowsPowerShell\v1.0\Modules"
+if(!(Test-Path ".\Modules")) {
+    Write-Log "ERROR - Modules folder not found!"  
+    break
+} 
+Copy-Item -Path "$InstallLocation\Modules\*" -Destination $ModulesFolder -Recurse
 
 # Import SqlServer module
 Import-Module -name SqlServer
@@ -382,7 +388,7 @@ $InitialConfigurationQuery = "
     /* Create reference employee */
     INSERT INTO T26COMDIPENDENTI VALUES (N'00000001',N'_DIP.RIF', N'_DIP.RIF', N'', N'', N'', N'', N'0', N'', N'INSTALLATORE', N'20000101000000', N'', N'', N'', N'', N'20000101', N'', N'0', N'', N'UTIL', N'M', N'', N'1', N'20000101000000', N'99991231235959', N'', N'', N'', N'', N'', N'', N'', N'', N'', N'', N'')
     /* Assign ref.empl. to admin user */
-    INSERT INTO T21COMUTENTI (T21DEFDIPRIFEST,T21DEFAZINTEST,T21DEFDIPRIFVIS,T21DEFAZINTVIS) VALUES ('00000001','UTIL','00000001','UTIL')
+    UPDATE T21COMUTENTI SET T21DEFDIPRIFEST='00000001',T21DEFAZINTEST='UTIL',T21DEFDIPRIFVIS='00000001',T21DEFAZINTVIS='UTIL' WHERE T21UTENTE='admin'
 "
 
 # Apply query
@@ -398,4 +404,3 @@ Write-Log ""
 # Insert final DSC checks here
 
 <# ------------------------------------ #>
-
