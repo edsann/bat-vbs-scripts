@@ -16,5 +16,5 @@ docker ps -aqf "name=MY_NEW_CONTAINER_NAME"
 docker start $(docker ps -aqf "name=MY_NEW_CONTAINER_NAME")
 
 # Pull container ASP.NET 4.8
-docker pull mcr.microsoft.com/dotnet/framework/aspnet:4.8
+docker run --name ASPNET48 --publish HOST_PORT:CONTAINER_PORT mcr.microsoft.com/dotnet/framework/aspnet:4.8
 
