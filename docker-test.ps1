@@ -20,7 +20,7 @@ docker tag mcr.microsoft.com/dotnet/framework/aspnet:4.8 aspnet48baseimage
 docker build -t ASPNET48 .
 
 # Run (pull, create & start) container
-docker run --name ASPNET48 --publish 8080:80 mcr.microsoft.com/dotnet/framework/aspnet:4.8
+docker run --name ASPNET48 --publish 8080:80 --detach mcr.microsoft.com/dotnet/framework/aspnet:4.8
 
 # Start PowerShell on running container
 docker exec -it ASPNET48 powershell
