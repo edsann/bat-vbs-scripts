@@ -1,3 +1,5 @@
+# From https://www.configjon.com/app-packaging-powershell-functions/
+
 Function Invoke-MsiExec
 {
 <#
