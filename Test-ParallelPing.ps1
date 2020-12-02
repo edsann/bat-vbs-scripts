@@ -27,7 +27,7 @@ function Test-ParallelPing {
     while(1) { 
         foreach ( $ip in $IPList ) { 
             $ipnet = $ip -as [NEt.IPAddress]
-            Test-NetConnection $ipnet -Count 1 | Select-Object Destination,Latency,Status
+            Test-NetConnection $ipnet | Select-Object Destination,Latency,Status
         } 
     }
 
