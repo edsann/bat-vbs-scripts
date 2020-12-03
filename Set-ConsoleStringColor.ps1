@@ -3,5 +3,5 @@
 
 # Change the color from default to White of a specific property in the console (e.g. strings)
 Set-PSReadLineOption -TokenKind String -ForegroundColor White # Windows Powershell
-Set-PSReadLineOption -Colors @{ "String" = "White" } 
+Set-PSReadLineOption -Colors @{ "String" = "White" } # Powershell Core
 
