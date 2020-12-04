@@ -1,5 +1,7 @@
 # Sending an e-mail when connection to SQL Server is lost
 
+function Test-SQLConnection {
+
 Try
 {
     # Cycling test connection to SQL Server
@@ -39,3 +41,4 @@ Catch
     $smtp.Send($smtpFrom, $smtpTo, $smtpSubject, $smtpBody)
 } 
  
+}
