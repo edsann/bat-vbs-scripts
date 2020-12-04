@@ -5,6 +5,7 @@ Some useful scripts in [Powershell](https://github.com/PowerShell/PowerShell). [
 [Kevin Marquette's Chronometer module](https://powershellexplained.com/2017-02-05-Powershell-Chronometer-line-by-line-script-execution-times/?utm_source=blog&utm_medium=blog&utm_content=projects) can be used to troubleshoot the scripts' time performances.
 
 ### Some helpful functions:
+* `Compare-FolderContent` : very simple command to compare the content of two similarly-structured folders
 * `Get-DirectoryTreeSize` : from [The Sysadmin Channel](https://thesysadminchannel.com/get-directory-tree-size-using-powershell/); it gets file count, subdirectory count and folder size of a specific path
 * `Get-PSFreeDrive`: it returns the free space of the system drives
 * `Get-PublicIPAddress`: it returns your public IPv4 address
