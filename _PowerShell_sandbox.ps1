@@ -1,13 +1,9 @@
 # Get the list of all services (format-table is the default format)
 Get-Service
 Get-Service | format-list
-# List the services, sorting by property 'status'
 Get-Service | sort-object -property status | format-table
-# List all properties and methods of Get-Service
 Get-Service | Get-Member
-# List the services in the Grid View
 Get-Service | out-gridview
-# List services from two machines
 Get-Service -ComputerName APPSERVER, DBSERVER | format-table machinename, name, status
 
 # List services and print them in txt file
@@ -145,3 +141,12 @@ $NoNet = New-ScheduledJobOption -RequireNetwork
 # Prompts for password of the USER provided
 Register-ScheduledJob -Name UpdateHelp -Trigger $TuesdayLunch -ScheduledJobOption $NoNet -ScriptBlock {Update-Help} -Credential DOMAIN\USERNAME
 # This job is saved in the Task Scheduler in Task Scheduler Library > Microsoft > Windows > PowerShell > Scheduled Job
+
+
+# Handle data on XML file
+$UnattendFile = "C:\stuff\unattend.xml"
+$xml = [xml](Get-Content $UnattendFile)
+$child = $xml.CreateElement("TimeZone", $xml.unattend.NamespaceURI)
+$child.InnerXml = "Central Standard Time"
+$null = $xml.unattend.settings.Where { ( $_.Pass -eq 'oobeSystem' )}.component.appendchild($child)
+$xml.Save($UnattendFile)
