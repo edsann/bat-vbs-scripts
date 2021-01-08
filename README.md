@@ -16,10 +16,12 @@ Some useful scripts in [Powershell](https://github.com/PowerShell/PowerShell). [
 ## Learning resources
 ## Books
 - [ ] [Learn Powershell in a month of lunches](https://www.manning.com/books/learn-windows-powershell-in-a-month-of-lunches-third-edition), D. Jones, J. Hicks
+- [ ] [Learn Powershell scripting in a month of lunches](https://www.manning.com/books/learn-powershell-scripting-in-a-month-of-lunches), D. Jones, J. Hicks
 ## Blogs
-* [Adam Bertram](https://adamtheautomator.com/)'s blog
-* Jeffery Hicks' [The Lonely Administrator](https://jdhitsolutions.com/blog/) blog
-* [Josh Duffney](https://Duffney.io)'s blog
-* [Planet Powershell](http://planet powershell.org) as a collector of web content
+* [Adam Bertram](https://adamtheautomator.com/)
+* [Jeffery Hicks](https://jdhitsolutions.com/blog/)
+* [Josh Duffney](https://Duffney.io)
+## Websites
+* [Planet Powershell](http://planetpowershell.org) as a collector of web content
 ## Video courses
 * John Cavill's [Powershell Masterclass]
