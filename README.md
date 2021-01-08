@@ -13,9 +13,13 @@ Some useful scripts in [Powershell](https://github.com/PowerShell/PowerShell). [
 * `Test-ParallelPing`: it loops through an array of IPv4 addresses, continuously returning for each the result of `Test-Connection` (it's like multi-address ping)
 * `Test-SQLConnection`: uses `sqlcmd` to continuously check the connection to SQL Server, then sends an email notification as soon as it gets down
 
-### Learning and interesting resources
+## Learning resources
+## Books
+- [ ] [Learn Powershell in a month of lunches](https://www.manning.com/books/learn-windows-powershell-in-a-month-of-lunches-third-edition), D. Jones, J. Hicks
+## Blogs
 * [Adam Bertram](https://adamtheautomator.com/)'s blog
-* Jeffery Hicks' [The Lonely Administrator]() blog
-* [Josh Duffney]()'s blog
-* [Planet Powershell] as a collector of web content
+* Jeffery Hicks' [The Lonely Administrator](https://jdhitsolutions.com/blog/) blog
+* [Josh Duffney](https://Duffney.io)'s blog
+* [Planet Powershell](http://planet powershell.org) as a collector of web content
+## Video courses
 * John Cavill's [Powershell Masterclass]
