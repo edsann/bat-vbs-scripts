@@ -13,7 +13,7 @@ Some useful scripts in [Powershell](https://github.com/PowerShell/PowerShell). [
 ### Websites
 * [Planet Powershell](http://planetpowershell.org) as a collector of web content
 ### Video courses
-* John Cavill's [Powershell Masterclass]
+* John Savill's [Powershell Masterclass]()
 
 ## Some helpful functions:
 * `Compare-FolderContent` : very simple command to compare the content of two similarly-structured folders
