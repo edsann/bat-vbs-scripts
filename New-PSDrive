@@ -1,0 +1,1 @@
+New-PSDrive -Name P -PSProvider FileSystem -Root \\NETWORK\PATH\ -Credential DOMAIN\USER -Persist
