@@ -1,0 +1,3 @@
+## Introduzione
+
+Nel corso del nostro percorso verso l'automazione del software deployment, si è reso necessario poter avviare ambienti di test in breve tempo e in maniera ripetibile. Siccome la nostra application suite è ancora fortemente dipendente dall'ecosistema Windows, si trattava quindi di poter avviare _on-demand_ macchine virtuali con una determinata configurazione. L'obiettivo è quello di permettere a chiunque di poter avviare  
