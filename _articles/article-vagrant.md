@@ -1,3 +1,20 @@
-## Introduzione
+## Table of contents
 
-Nel corso del nostro percorso verso l'automazione del software deployment, si è reso necessario poter avviare ambienti di test in breve tempo e in maniera ripetibile. Siccome la nostra application suite è ancora fortemente dipendente dall'ecosistema Windows, si trattava quindi di poter avviare _on-demand_ macchine virtuali con una determinata configurazione. L'obiettivo è quello di permettere a chiunque di poter avviare  
+## Introduction
+
+## What's Vagrant
+
+## Install and setup Vagrant
+### Installing Vagrant and creating a new project
+`vagrant init`
+### Project structure
+
+
+## Setup your first machine
+### The Vagrantfile
+`vagrant validate`
+### Run the machine
+`vagrant up`
+`vagrant provision`
+## Multi-machine configuration
+
