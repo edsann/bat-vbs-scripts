@@ -3,6 +3,12 @@
 
 ## Introduction
 
+In our experiments in simplifying the installation and configuration procedures of a suite of .NET applications, we needed to spin-up and use a test VM in a quick and repeatable manner.
+
+Ideally, anyone in our team should have been able to create his/her own environment, with no further time waiting for sysadmins to create new machines.
+
+The best way to do this is using **Infrastructure as Code (IaC)**, a common practice in DevOps. The environment creation scripts would be tracked with source version control and properly 
+
 ## What's Vagrant
 
 ## Install and setup Vagrant
