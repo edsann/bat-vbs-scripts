@@ -3,11 +3,11 @@
 
 ## Introduction
 
-In our experiments in simplifying the installation and configuration procedures of a suite of .NET applications, we needed to spin-up and use a test VM in a quick and repeatable manner.
+Why: we're trying to implement a CI/CD pipeline in our in-house .NET application suite. Being a demanding task, we need to be able to quickly create, provision and destroy repeatable test environments (where 'environment', containers not being supported yet, is a whole VM).
 
-Ideally, anyone in our team should have been able to create his/her own environment, with no further time waiting for sysadmins to create new machines.
+What: The main idea is to use  **Infrastructure as Code (IaC)**, a common practice in DevOps. IaC is made of creation and configuration scripts to be fed to a proper engine, therefore it will be version-controlled with Git.
 
-The best way to do this is using **Infrastructure as Code (IaC)**, a common practice in DevOps. The environment creation scripts would be tracked with source version control and properly 
+How: Virtualbox and VMWare both offer their own CLIs, but we'd like a provider-neutral tool. Hence we decided for [Hashicorp's Vagrant](https://www.vagrantup.com).
 
 ## What's Vagrant
 
